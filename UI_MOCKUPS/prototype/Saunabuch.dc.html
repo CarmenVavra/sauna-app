@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/broadsheet-42f3a642-df05-494a-89a6-b8c0725617ee/styles.css">
+<script src="_ds/broadsheet-42f3a642-df05-494a-89a6-b8c0725617ee/_ds_bundle.js"></script>
+<style>body{margin:0;text-wrap:pretty}a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-600)}input[type=range]{accent-color:var(--color-accent);width:100%}button{white-space:nowrap}.nav a{white-space:nowrap}</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+
+<sc-if value="{{ s.login }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Login" style="max-width:1200px;margin:0 auto;padding:64px 56px 96px;display:flex;flex-wrap:wrap;gap:64px 96px;align-items:flex-start">
+  <div style="flex:1 1 480px;min-width:0">
+    <div style="border-top:3px solid var(--color-text)"></div>
+    <div style="border-top:1px solid var(--color-text);margin-top:2px"></div>
+    <div style="display:flex;justify-content:space-between;gap:24px;font-size:13px;letter-spacing:0.03em;padding:8px 0">
+      <span>Wohnanlage · Stiegen 1–15</span><span>{{ dateline.date }}</span>
+    </div>
+    <div style="border-top:1px solid var(--color-text)"></div>
+    <h1 style="font-size:clamp(60px,8vw,96px);line-height:0.98;letter-spacing:-0.035em;margin:64px 0 24px">Saunabuch</h1>
+    <p style="font-size:23px;line-height:1.4;max-width:28ch;margin:0">Reservierungen, Schlüssel und Münzen für die Saunen im Dachgeschoß.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:32px;margin-top:72px;max-width:640px">
+      <div><h6>Schlüsselausgabe</h6><p style="font-size:14px;margin:0">{{ hours.moDo }}<br>{{ hours.fr }}</p></div>
+      <div><h6>Wochenende</h6><p style="font-size:14px;margin:0">Abholung bis Freitag {{ hours.frBis }}, Rückgabe Sonntagabend in den Postkasten.</p></div>
+      <div><h6>Münzen</h6><p style="font-size:14px;margin:0">{{ hours.coin }}</p></div>
+    </div>
+  </div>
+  <form onSubmit="{{ login.submit }}" style="padding-top:150px;display:flex;flex-direction:column;gap:18px;flex:0 1 360px;min-width:280px">
+    <h3 style="margin:0">Anmelden</h3>
+    <div class="field"><label>Benutzername</label><input class="input" value="{{ login.u }}" onChange="{{ login.onU }}" placeholder="vorname.nachname"></div>
+    <div class="field"><label>Passwort</label><input class="input" type="password" value="{{ login.p }}" onChange="{{ login.onP }}"></div>
+    <sc-if value="{{ login.hasErr }}" hint-placeholder-val="{{ false }}"><p style="color:var(--color-accent-2-700);font-size:13px;margin:0">{{ login.err }}</p></sc-if>
+    <button class="btn btn-primary" type="submit" style="align-self:flex-start;padding-inline:28px">Anmelden</button>
+    <p style="font-size:13px;color:color-mix(in srgb, var(--color-text) 65%, transparent);margin:8px 0 0">Zugänge vergibt der Hauswart. Eine Selbstregistrierung ist nicht vorgesehen.</p>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-top:28px">
+      <span style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 65%, transparent)">Demo-Zugänge</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn btn-secondary" onClick="{{ login.asAdmin }}">Als Hauswart</button>
+        <button type="button" class="btn btn-secondary" onClick="{{ login.asUser }}">Als Maria Huber</button>
+      </div>
+    </div>
+  </form>
+</div>
+</sc-if>
+
+<sc-if value="{{ s.app }}" hint-placeholder-val="{{ false }}">
+<header style="max-width:1280px;margin:0 auto;padding:0 40px">
+  <div class="nav" style="padding:22px 0 16px;gap:22px">
+    <span class="nav-brand" style="font-size:24px;letter-spacing:-0.02em;display:flex;align-items:baseline;gap:12px">Saunabuch<span style="font-weight:400;font-size:13px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ roleLabel }}</span></span>
+    <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4"><a href="#" aria-current="{{ n.current }}" onClick="{{ n.onClick }}">{{ n.label }}</a></sc-for>
+    <button class="btn btn-ghost" onClick="{{ logout }}" style="font-size:13px">Abmelden</button>
+  </div>
+  <div style="border-top:3px solid var(--color-text)"></div>
+  <div style="border-top:1px solid var(--color-text);margin-top:2px"></div>
+  <div style="display:flex;gap:24px;justify-content:space-between;padding:8px 0;font-size:13px;letter-spacing:0.03em">
+    <span>{{ dateline.date }}</span><span>{{ dateline.mid }}</span><span>{{ dateline.right }}</span>
+  </div>
+  <div style="border-top:1px solid var(--color-text)"></div>
+</header>
+
+<main style="max-width:1280px;margin:0 auto;padding:56px 40px 140px">
+
+<!-- ADMIN · HEUTE -->
+<sc-if value="{{ s.aHeute }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Admin Heute" style="display:flex;flex-wrap:wrap;gap:64px 80px;align-items:flex-start">
+  <div style="flex:1 1 600px;min-width:0">
+    <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">Heute · {{ heute.dayLabel }}</div>
+    <h1 style="font-size:50px;line-height:1.08;letter-spacing:-0.025em;max-width:20ch;margin:0 0 64px">{{ heute.headline }}</h1>
+
+    <section style="margin-bottom:64px">
+      <h3>Postkasten prüfen</h3>
+      <p style="font-size:14px;color:color-mix(in srgb, var(--color-text) 62%, transparent);max-width:60ch">Als eingeworfen gemeldete Schlüssel und Schlüssel, deren Reservierung vorbei ist.</p>
+      <sc-if value="{{ heute.noMailbox }}" hint-placeholder-val="{{ false }}"><p style="font-size:15px">Nichts zu prüfen.</p></sc-if>
+      <sc-for list="{{ heute.mailbox }}" as="r" hint-placeholder-count="2">
+        <div style="display:grid;grid-template-columns:110px 80px minmax(0,1fr) minmax(0,170px) auto;gap:20px;align-items:center;padding:14px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+          <span>{{ r.when }}</span><span>{{ r.sauna }}</span>
+          <span><span style="display:block">{{ r.name }}</span><span style="font-size:12px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ r.loc }}</span></span>
+          <span><span style="white-space:nowrap" class="tag {{ r.tagCls }}">{{ r.tag }}</span></span>
+          <button class="btn btn-primary" onClick="{{ r.confirm }}">Schlüssel ist da</button>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="margin-bottom:64px">
+      <h3>Schlüssel abholen lassen</h3>
+      <p style="font-size:14px;color:color-mix(in srgb, var(--color-text) 62%, transparent);max-width:60ch">Reservierungen der nächsten drei Tage. Für das Wochenende gilt: Abholung bis Freitag {{ hours.frBis }}.</p>
+      <sc-if value="{{ heute.noPickups }}" hint-placeholder-val="{{ false }}"><p style="font-size:15px">Keine Abholungen offen.</p></sc-if>
+      <sc-for list="{{ heute.pickups }}" as="r" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:110px 80px minmax(0,1fr) minmax(0,170px) auto;gap:20px;align-items:center;padding:14px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+          <span>{{ r.when }}</span><span>{{ r.sauna }}</span>
+          <span><span style="display:block">{{ r.name }}</span><span style="font-size:12px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ r.loc }}</span></span>
+          <span style="font-size:13px">{{ r.pick }}</span>
+          <button class="btn btn-secondary" onClick="{{ r.give }}">Ausgegeben</button>
+        </div>
+      </sc-for>
+    </section>
+
+    <section>
+      <h3>Münzen zählen</h3>
+      <p style="font-size:14px;color:color-mix(in srgb, var(--color-text) 62%, transparent);max-width:60ch">Beim täglichen Rundgang eingesammelte Münzen der jeweiligen Reservierung zuordnen – so sieht man, wer noch Münzen übrig hat.</p>
+      <sc-if value="{{ heute.noCoins }}" hint-placeholder-val="{{ false }}"><p style="font-size:15px">Alle Münzen erfasst.</p></sc-if>
+      <sc-for list="{{ heute.coins }}" as="r" hint-placeholder-count="1">
+        <div style="display:grid;grid-template-columns:110px 80px minmax(0,1fr) 100px auto;gap:20px;align-items:center;padding:14px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+          <span>{{ r.when }}</span><span>{{ r.sauna }}</span>
+          <span><span style="display:block">{{ r.name }}</span><span style="font-size:12px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ r.loc }}</span></span>
+          <input class="input" type="number" min="0" placeholder="Anzahl" value="{{ r.val }}" onChange="{{ r.onInput }}">
+          <button class="btn btn-secondary" onClick="{{ r.save }}">Erfassen</button>
+        </div>
+      </sc-for>
+    </section>
+  </div>
+
+  <aside style="flex:0 1 290px;min-width:260px">
+    <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 34px">Münzen im Lager</div>
+    <sc-if value="{{ plate }}" hint-placeholder-val="{{ true }}">
+      <div class="cmyk-num" style="font-family:var(--font-heading);font-weight:600;font-size:128px;letter-spacing:-0.03em"><span class="paper">{{ coins.lager }}</span><span class="plate plate-c" aria-hidden="true">{{ coins.lager }}</span><span class="plate plate-m" aria-hidden="true">{{ coins.lager }}</span><span class="plate plate-y" aria-hidden="true">{{ coins.lager }}</span></div>
+    </sc-if>
+    <sc-if value="{{ noPlate }}" hint-placeholder-val="{{ false }}"><div style="font-family:var(--font-heading);font-weight:600;font-size:128px;line-height:0.9;letter-spacing:-0.03em">{{ coins.lager }}</div></sc-if>
+    <p style="font-size:14px;margin:22px 0 28px">von {{ coins.total }} Münzen · {{ coins.circ }} bei Parteien</p>
+    <div style="display:flex;flex-direction:column;font-size:14px">
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)"><span>Verkauft 2026</span><span>{{ coins.sold }}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)"><span>Eingesammelt 2026</span><span>{{ coins.used }}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0"><span>Einnahmen 2026</span><span>{{ coins.rev }}</span></div>
+    </div>
+    <h4 style="margin:56px 0 12px">Schlüsselbrett</h4>
+    <sc-for list="{{ heute.keys }}" as="k" hint-placeholder-count="5">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+        <span><span style="display:block;font-weight:600">{{ k.sauna }}</span><span style="font-size:12px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ k.where }}</span></span>
+        <span style="white-space:nowrap" class="tag {{ k.cls }}">{{ k.tag }}</span>
+      </div>
+    </sc-for>
+  </aside>
+</div>
+</sc-if>
+
+<!-- ADMIN · KALENDER -->
+<sc-if value="{{ s.aKal }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Admin Kalender">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:44px;flex-wrap:wrap">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">Reservierungskalender · {{ kal.kw }}</div>
+      <h1 style="margin:0">{{ kal.title }}</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" onClick="{{ kal.prev }}">← Vorwoche</button>
+      <button class="btn btn-secondary" onClick="{{ kal.now }}">Diese Woche</button>
+      <button class="btn btn-secondary" onClick="{{ kal.next }}">Nächste Woche →</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:110px repeat(5,minmax(0,1fr)) minmax(0,1.3fr);gap:10px;align-items:stretch">
+    <div></div>
+    <sc-for list="{{ kal.head }}" as="h" hint-placeholder-count="6"><div style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;padding:0 0 6px;color:{{ h.color }};font-weight:{{ h.weight }}">{{ h.label }}</div></sc-for>
+    <sc-for list="{{ kal.rows }}" as="row" hint-placeholder-count="5">
+      <div style="padding:12px 0;font-weight:600;font-size:17px">{{ row.sauna }}</div>
+      <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="6">
+        <sc-if value="{{ c.has }}" hint-placeholder-val="{{ false }}">
+          <button class="card" onClick="{{ c.onClick }}" style="white-space:normal;text-align:left;border:0;cursor:pointer;font:inherit;color:inherit;width:100%;min-height:104px;gap:6px;justify-content:space-between" style-hover="box-shadow:var(--shadow-md)">
+            <span><span style="display:block;font-weight:600;font-size:14px;line-height:1.25">{{ c.name }}</span><span style="font-size:12px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ c.loc }}</span></span>
+            <span><span style="white-space:nowrap" class="tag {{ c.tagCls }}">{{ c.tag }}</span></span>
+          </button>
+        </sc-if>
+        <sc-if value="{{ c.free }}" hint-placeholder-val="{{ false }}">
+          <button class="btn btn-secondary" onClick="{{ c.onClick }}" style="width:100%;min-height:104px;font-weight:400;color:color-mix(in srgb, var(--color-text) 62%, transparent);border-style:dashed">frei · anlegen</button>
+        </sc-if>
+        <sc-if value="{{ c.past }}" hint-placeholder-val="{{ false }}">
+          <div style="min-height:104px;display:flex;align-items:center;justify-content:center;color:color-mix(in srgb, var(--color-text) 35%, transparent)">—</div>
+        </sc-if>
+      </sc-for>
+    </sc-for>
+  </div>
+  <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:40px;font-size:13px">
+    <span style="color:color-mix(in srgb, var(--color-text) 62%, transparent)">Ablauf</span>
+    <span class="tag tag-outline">Schlüssel abzuholen</span><span>→</span>
+    <span class="tag tag-accent">Schlüssel ausgegeben</span><span>→</span>
+    <span class="tag tag-accent-2">Eingeworfen gemeldet</span><span>→</span>
+    <span class="tag tag-neutral">Schlüssel zurück</span>
+    <span style="color:color-mix(in srgb, var(--color-text) 62%, transparent);margin-left:12px">Samstag und Sonntag werden als ein Wochenende reserviert.</span>
+  </div>
+</div>
+</sc-if>
+
+<!-- ADMIN · STIEGEN -->
+<sc-if value="{{ s.aSt }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Admin Stiegen" style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:56px;align-items:start">
+  <div>
+    <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">Wohnanlage</div>
+    <h2 style="margin:0 0 8px">15 Stiegen</h2>
+    <p style="font-size:14px;color:color-mix(in srgb, var(--color-text) 62%, transparent);margin:0 0 24px">{{ stg.totals }}</p>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ stg.list }}" as="it" hint-placeholder-count="15">
+        <button onClick="{{ it.onClick }}" style="white-space:normal;display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:9px 12px;border:0;background:{{ it.bg }};font:inherit;color:inherit;text-align:left;cursor:pointer;border-radius:var(--radius-md)" style-hover="background:var(--color-neutral-200)">
+          <span style="display:block"><span style="display:block;font-weight:600;line-height:1.3">{{ it.label }}</span><span style="display:block;font-size:12px;line-height:1.4;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ it.sub }}</span></span>
+          <sc-if value="{{ it.sauna }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">Sauna</span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:36px">
+      <div>
+        <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">Stiege bearbeiten</div>
+        <h1 style="margin:0">{{ stg.title }}</h1>
+      </div>
+      <button class="btn btn-primary" onClick="{{ stg.addAny }}">Partei registrieren</button>
+    </div>
+    <div style="display:flex;gap:24px 48px;align-items:flex-end;margin-bottom:52px;flex-wrap:wrap">
+      <div class="field" style="width:150px;flex:none"><label>Anzahl Wohnungen</label><input class="input" type="number" min="1" max="40" value="{{ stg.wohnungen }}" onChange="{{ stg.onWohn }}"></div>
+      <div class="field" style="flex:none"><label>Sauna im Dachgeschoß</label>
+        <div class="seg">
+          <label class="seg-opt"><input type="radio" name="stsauna" checked="{{ stg.saunaYes }}" onChange="{{ stg.onYes }}">Ja</label>
+          <label class="seg-opt"><input type="radio" name="stsauna" checked="{{ stg.saunaNo }}" onChange="{{ stg.onNo }}">Nein</label>
+        </div>
+      </div>
+      <div class="field" style="flex:none"><label>Registrierte Parteien</label><div style="font-size:22px;font-weight:600;line-height:36px">{{ stg.nParties }}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:90px minmax(0,1fr) 120px;gap:20px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 60%, transparent);padding:0 0 8px;border-bottom:1px solid var(--color-divider)"><span>Wohnung</span><span>Parteien · Benutzername</span><span></span></div>
+    <sc-for list="{{ stg.wohn }}" as="w" hint-placeholder-count="8">
+      <div style="display:grid;grid-template-columns:90px minmax(0,1fr) 120px;gap:20px;padding:12px 0;align-items:start;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+        <span style="font-weight:600;line-height:28px">{{ w.top }}</span>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <sc-if value="{{ w.none }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;line-height:28px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">Keine Partei registriert</span></sc-if>
+          <sc-for list="{{ w.parties }}" as="p" hint-placeholder-count="1">
+            <div style="display:grid;grid-template-columns:minmax(150px,1fr) minmax(0,1fr) auto;gap:16px;align-items:center;min-height:28px">
+              <span>{{ p.name }}</span>
+              <span style="font-size:13px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ p.user }}</span>
+              <button class="btn btn-ghost" onClick="{{ p.remove }}" style="font-size:12px;padding:2px 6px">Entfernen</button>
+            </div>
+          </sc-for>
+        </div>
+        <button class="btn btn-ghost" onClick="{{ w.add }}" style="justify-self:end">+ Partei</button>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ADMIN · MÜNZEN -->
+<sc-if value="{{ s.aMz }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Admin Münzen">
+  <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">Münzen &amp; Abrechnung</div>
+  <h1 style="margin:0 0 48px">{{ coins.lager }} Münzen im Lager, {{ coins.circ }} bei den Parteien.</h1>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:32px 40px;margin-bottom:72px;max-width:960px">
+    <div><div style="font-size:40px;font-weight:600;line-height:1">{{ coins.total }}</div><div style="font-size:13px;margin-top:8px">Münzen gesamt</div></div>
+    <div><div style="font-size:40px;font-weight:600;line-height:1">{{ coins.sold }}</div><div style="font-size:13px;margin-top:8px">verkauft 2026</div></div>
+    <div><div style="font-size:40px;font-weight:600;line-height:1">{{ coins.used }}</div><div style="font-size:13px;margin-top:8px">eingesammelt 2026</div></div>
+    <div><div style="font-size:40px;font-weight:600;line-height:1">{{ coins.rev }}</div><div style="font-size:13px;margin-top:8px">Einnahmen 2026</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:64px 80px;align-items:start">
+    <div>
+      <h3>Verkauf erfassen</h3>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 100px 150px;gap:14px;align-items:end;margin:18px 0 10px">
+        <div class="field"><label>Partei</label>
+          <select class="input" value="{{ mz.pid }}" onChange="{{ mz.onPid }}">
+            <option value="">Partei wählen …</option>
+            <sc-for list="{{ partyOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+          </select>
+        </div>
+        <div class="field"><label>Anzahl</label><input class="input" type="number" min="1" value="{{ mz.qty }}" onChange="{{ mz.onQty }}"></div>
+        <div class="field"><label>Datum</label><input class="input" type="date" value="{{ mz.date }}" onChange="{{ mz.onDate }}"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px;margin-bottom:56px">
+        <button class="btn btn-primary" onClick="{{ mz.save }}">Verkauf erfassen</button>
+        <span style="font-size:14px">{{ mz.sum }}</span>
+      </div>
+      <h4>Letzte Verkäufe</h4>
+      <div style="display:grid;grid-template-columns:110px minmax(0,1fr) 60px 90px;gap:16px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 60%, transparent);padding:8px 0;border-bottom:1px solid var(--color-divider)"><span>Datum</span><span>Partei</span><span style="text-align:right">Stk.</span><span style="text-align:right">Betrag</span></div>
+      <sc-for list="{{ mz.sales }}" as="x" hint-placeholder-count="8">
+        <div style="display:grid;grid-template-columns:110px minmax(0,1fr) 60px 90px;gap:16px;padding:10px 0;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+          <span>{{ x.date }}</span><span>{{ x.name }} <span style="font-size:12px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">· {{ x.loc }}</span></span><span style="text-align:right">{{ x.qty }}</span><span style="text-align:right">{{ x.sum }}</span>
+        </div>
+      </sc-for>
+      <p style="font-size:13px;color:color-mix(in srgb, var(--color-text) 62%, transparent);margin-top:12px">{{ mz.salesMore }}</p>
+    </div>
+    <div>
+      <h3>Übrige Münzen je Partei</h3>
+      <p style="font-size:14px;color:color-mix(in srgb, var(--color-text) 62%, transparent);max-width:52ch">Gekauft minus eingesammelt. Da jede Reservierung einen ganzen Tag gilt, lassen sich die Münzen eindeutig zuordnen.</p>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 70px 80px 60px;gap:16px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 60%, transparent);padding:8px 0;border-bottom:1px solid var(--color-divider)"><span>Partei</span><span style="text-align:right">Gekauft</span><span style="text-align:right">Verwendet</span><span style="text-align:right">Übrig</span></div>
+      <sc-for list="{{ mz.saldo }}" as="x" hint-placeholder-count="8">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 70px 80px 60px;gap:16px;padding:10px 0;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+          <span>{{ x.name }} <span style="font-size:12px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">· {{ x.loc }}</span></span><span style="text-align:right">{{ x.bought }}</span><span style="text-align:right">{{ x.used }}</span><span style="text-align:right;font-weight:600">{{ x.left }}</span>
+        </div>
+      </sc-for>
+
+      <h3 style="margin-top:64px">Grundwerte</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px">
+        <div class="field"><label>Preis pro Münze (€)</label><input class="input" type="number" step="0.5" min="0" value="{{ set.price }}" onChange="{{ set.onPrice }}"></div>
+        <div class="field"><label>Minuten pro Münze</label><input class="input" type="number" step="5" min="5" value="{{ set.minutes }}" onChange="{{ set.onMin }}"></div>
+        <div class="field"><label>Münzen gesamt</label><input class="input" type="number" min="0" value="{{ set.total }}" onChange="{{ set.onTotal }}"></div>
+      </div>
+      <h6 style="margin:32px 0 12px">Schlüsselausgabe</h6>
+      <div style="display:grid;grid-template-columns:90px 110px 20px 110px;gap:12px;align-items:center;font-size:14px">
+        <span>Mo – Do</span><input class="input" type="time" value="{{ set.moDoVon }}" onChange="{{ set.onMoDoVon }}"><span>–</span><input class="input" type="time" value="{{ set.moDoBis }}" onChange="{{ set.onMoDoBis }}">
+        <span>Freitag</span><input class="input" type="time" value="{{ set.frVon }}" onChange="{{ set.onFrVon }}"><span>–</span><input class="input" type="time" value="{{ set.frBis }}" onChange="{{ set.onFrBis }}">
+      </div>
+      <p style="font-size:13px;color:color-mix(in srgb, var(--color-text) 62%, transparent);margin-top:14px;max-width:52ch">Wochenend-Reservierungen sind nur möglich, solange der Schlüssel bis Freitag {{ hours.frBis }} abgeholt werden kann.</p>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- USER · MEINE SAUNAGÄNGE -->
+<sc-if value="{{ s.uG }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="User Saunagänge" style="display:flex;flex-wrap:wrap;gap:64px 80px;align-items:flex-start">
+  <div style="flex:1 1 600px;min-width:0">
+    <sc-if value="{{ ug.hasOpen }}" hint-placeholder-val="{{ false }}">
+      <sc-for list="{{ ug.open }}" as="o" hint-placeholder-count="1">
+        <div style="margin-bottom:56px;max-width:640px">
+          <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent-2-700);margin:0 0 10px">Schlüssel offen</div>
+          <p style="font-size:21px;line-height:1.4;margin:0 0 16px">Der Schlüssel für die Sauna {{ o.sauna }} vom {{ o.when }} ist noch nicht zurückgemeldet.</p>
+          <button class="btn btn-primary" onClick="{{ o.report }}">Schlüssel liegt im Postkasten</button>
+        </div>
+      </sc-for>
+    </sc-if>
+    <sc-if value="{{ ug.hasNext }}" hint-placeholder-val="{{ true }}">
+      <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">Nächster Saunagang</div>
+      <h1 style="font-size:54px;line-height:1.06;letter-spacing:-0.025em;max-width:17ch;margin:0 0 12px">{{ ug.next.when }}</h1>
+      <p style="font-size:21px;margin:0">Sauna {{ ug.next.sauna }} · Dachgeschoß</p>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px;margin:36px 0 28px;max-width:780px">
+        <div><h6>Schlüssel abholen</h6><p style="margin:0">{{ ug.next.pick }}</p></div>
+        <div><h6>Schlüssel zurück</h6><p style="margin:0">{{ ug.next.ret }}</p></div>
+        <div><h6>Status</h6><span style="white-space:nowrap" class="tag {{ ug.next.tagCls }}">{{ ug.next.tag }}</span></div>
+      </div>
+      <sc-if value="{{ ug.next.canEdit }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;gap:10px"><button class="btn btn-secondary" onClick="{{ ug.next.edit }}">Bearbeiten</button><button class="btn btn-ghost" onClick="{{ ug.next.cancel }}">Absagen</button></div>
+      </sc-if>
+    </sc-if>
+    <sc-if value="{{ ug.noNext }}" hint-placeholder-val="{{ false }}">
+      <h1 style="font-size:50px;margin:0 0 20px">Kein Saunagang geplant.</h1>
+      <button class="btn btn-primary" onClick="{{ ug.newRes }}">Sauna reservieren</button>
+    </sc-if>
+
+    <sc-if value="{{ ug.hasMore }}" hint-placeholder-val="{{ true }}">
+      <section style="margin-top:80px">
+        <h3>Weitere Termine</h3>
+        <sc-for list="{{ ug.more }}" as="r" hint-placeholder-count="1">
+          <div style="display:grid;grid-template-columns:150px 100px minmax(0,1fr) auto;gap:20px;align-items:center;padding:14px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+            <span style="font-weight:600">{{ r.when }}</span><span>{{ r.sauna }}</span><span style="font-size:13px">Abholung {{ r.pick }}</span>
+            <span style="display:flex;gap:6px"><button class="btn btn-secondary" onClick="{{ r.edit }}">Bearbeiten</button><button class="btn btn-ghost" onClick="{{ r.cancel }}">Absagen</button></span>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+
+    <section style="margin-top:80px">
+      <h3>Vergangene Saunagänge</h3>
+      <div style="display:grid;grid-template-columns:150px 100px 80px 110px 70px 80px minmax(0,1fr);gap:16px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 60%, transparent);padding:8px 0;border-bottom:1px solid var(--color-divider)"><span>Termin</span><span>Sauna</span><span>Temp.</span><span>Aufguss</span><span style="text-align:right">Münzen</span><span style="text-align:right">Kosten</span><span></span></div>
+      <sc-for list="{{ ug.past }}" as="r" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:150px 100px 80px 110px 70px 80px minmax(0,1fr);gap:16px;align-items:center;padding:8px 0;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+          <span>{{ r.when }}</span><span>{{ r.sauna }}</span><span>{{ r.temp }}</span><span>{{ r.auf }}</span><span style="text-align:right">{{ r.coins }}</span><span style="text-align:right">{{ r.cost }}</span>
+          <span style="text-align:right"><button class="btn btn-ghost" onClick="{{ r.open }}" style="font-size:13px">{{ r.tbLabel }}</button></span>
+        </div>
+      </sc-for>
+    </section>
+
+    <sc-if value="{{ ug.hasCanc }}" hint-placeholder-val="{{ false }}">
+      <section style="margin-top:64px">
+        <h4>Abgesagt</h4>
+        <sc-for list="{{ ug.canc }}" as="r" hint-placeholder-count="1">
+          <div style="display:grid;grid-template-columns:150px 100px minmax(0,1fr) auto;gap:20px;align-items:center;padding:8px 0;font-size:14px;color:color-mix(in srgb, var(--color-text) 62%, transparent);border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+            <span style="text-decoration:line-through">{{ r.when }}</span><span>{{ r.sauna }}</span><span></span>
+            <button class="btn btn-ghost" onClick="{{ r.del }}" style="font-size:13px">Löschen</button>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+  </div>
+
+  <aside style="flex:0 1 290px;min-width:260px">
+    <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 34px">Münzen übrig</div>
+    <sc-if value="{{ plate }}" hint-placeholder-val="{{ true }}">
+      <div class="cmyk-num" style="font-family:var(--font-heading);font-weight:600;font-size:128px;letter-spacing:-0.03em"><span class="paper">{{ my.left }}</span><span class="plate plate-c" aria-hidden="true">{{ my.left }}</span><span class="plate plate-m" aria-hidden="true">{{ my.left }}</span><span class="plate plate-y" aria-hidden="true">{{ my.left }}</span></div>
+    </sc-if>
+    <sc-if value="{{ noPlate }}" hint-placeholder-val="{{ false }}"><div style="font-family:var(--font-heading);font-weight:600;font-size:128px;line-height:0.9;letter-spacing:-0.03em">{{ my.left }}</div></sc-if>
+    <p style="font-size:14px;margin:22px 0 8px">{{ my.bought }} gekauft · {{ my.used }} verbraucht</p>
+    <sc-if value="{{ my.low }}" hint-placeholder-val="{{ false }}"><p style="font-size:14px;color:var(--color-accent-2-700);margin:0 0 8px">Beim nächsten Schlüssel gleich Münzen mitkaufen.</p></sc-if>
+    <a href="#" onClick="{{ goMz }}" style="font-size:14px">Münzkäufe ansehen</a>
+    <h4 style="margin:56px 0 10px">Schlüsselausgabe</h4>
+    <p style="font-size:14px;margin:0 0 10px">{{ hours.moDo }}<br>{{ hours.fr }}</p>
+    <p style="font-size:14px;color:color-mix(in srgb, var(--color-text) 65%, transparent)">Für Samstag und Sonntag den Schlüssel bis Freitag {{ hours.frBis }} abholen und Sonntagabend in den Postkasten neben der Wohnungstür des Hauswarts werfen.</p>
+    <button class="btn btn-primary btn-block" onClick="{{ ug.newRes }}" style="margin-top:20px">Neue Reservierung</button>
+  </aside>
+</div>
+</sc-if>
+
+<!-- USER · RESERVIEREN -->
+<sc-if value="{{ s.uR }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="User Reservieren">
+  <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">{{ fr.kicker }}</div>
+  <h1 style="margin:0 0 48px">{{ fr.title }}</h1>
+  <div style="display:flex;flex-wrap:wrap;gap:48px 56px;align-items:flex-start">
+    <div style="flex:0 1 230px;min-width:200px">
+      <h6 style="margin-bottom:12px">1 · Sauna</h6>
+      <sc-for list="{{ fr.saunas }}" as="o" hint-placeholder-count="5">
+        <label class="radio" style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+          <input type="radio" name="ressauna" checked="{{ o.on }}" onChange="{{ o.pick }}"><span class="dot" style="margin-top:4px"></span>
+          <span style="display:block"><span style="display:block;font-weight:600;font-size:16px;line-height:1.3">{{ o.label }}</span><span style="display:block;font-size:12px;line-height:1.4;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ o.sub }}</span></span>
+        </label>
+      </sc-for>
+    </div>
+    <div style="flex:1 1 440px;min-width:0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h6 style="margin:0">2 · Tag</h6>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="btn btn-secondary btn-icon" onClick="{{ cal.prev }}" disabled="{{ cal.prevDis }}">‹</button>
+          <span style="font-weight:600;min-width:150px;text-align:center">{{ cal.title }}</span>
+          <button class="btn btn-secondary btn-icon" onClick="{{ cal.next }}" disabled="{{ cal.nextDis }}">›</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px">
+        <sc-for list="{{ cal.wd }}" as="w" hint-placeholder-count="7"><div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 60%, transparent);padding:2px 0 4px">{{ w }}</div></sc-for>
+        <sc-for list="{{ cal.cells }}" as="d" hint-placeholder-count="35">
+          <sc-if value="{{ d.blank }}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+          <sc-if value="{{ d.day }}" hint-placeholder-val="{{ true }}">
+            <button class="btn {{ d.cls }}" disabled="{{ d.dis }}" onClick="{{ d.pick }}" style="flex-direction:column;align-items:flex-start;justify-content:space-between;gap:2px;height:66px;width:100%;padding:7px 9px;font-weight:400">
+              <span style="font-size:17px;font-weight:600">{{ d.n }}</span><span style="font-size:11px">{{ d.sub }}</span>
+            </button>
+          </sc-if>
+        </sc-for>
+      </div>
+      <p style="font-size:13px;color:color-mix(in srgb, var(--color-text) 62%, transparent);margin-top:14px">Samstag und Sonntag werden gemeinsam reserviert. Eine Reservierung gilt den ganzen Tag.</p>
+    </div>
+    <div style="flex:1 1 280px;max-width:380px">
+      <h6 style="margin-bottom:12px">3 · Übersicht</h6>
+      <sc-if value="{{ fr.has }}" hint-placeholder-val="{{ false }}">
+        <h3 style="margin:0 0 6px">{{ fr.sum.when }}</h3>
+        <p style="margin:0 0 24px">Sauna {{ fr.sum.sauna }} · Dachgeschoß</p>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px;font-size:14px">
+          <div><div style="font-size:12px;color:color-mix(in srgb, var(--color-text) 65%, transparent)">Schlüssel abholen</div><div style="font-weight:600">{{ fr.sum.pick }}</div></div>
+          <div><div style="font-size:12px;color:color-mix(in srgb, var(--color-text) 65%, transparent)">Schlüssel zurück</div><div>{{ fr.sum.ret }}</div></div>
+          <div><div style="font-size:12px;color:color-mix(in srgb, var(--color-text) 65%, transparent)">Münzen</div><div>{{ hours.coin }}. Sie haben noch {{ my.left }}.</div></div>
+        </div>
+        <div class="field" style="margin-bottom:18px"><label>Notiz an den Hauswart (optional)</label><textarea class="input" value="{{ fr.note }}" onChange="{{ fr.onNote }}" placeholder="z. B. Abholung erst um 17 Uhr"></textarea></div>
+        <button class="btn btn-primary btn-block" onClick="{{ fr.submit }}">{{ fr.cta }}</button>
+      </sc-if>
+      <sc-if value="{{ fr.none }}" hint-placeholder-val="{{ true }}"><p style="font-size:15px;color:color-mix(in srgb, var(--color-text) 65%, transparent)">Wählen Sie eine Sauna und einen freien Tag.</p></sc-if>
+      <button class="btn btn-ghost" onClick="{{ fr.back }}" style="margin-top:12px">Zurück zu meinen Saunagängen</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- USER · TAGEBUCH -->
+<sc-if value="{{ s.uTb }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="User Tagebuch" style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:56px;align-items:start">
+  <div>
+    <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">Saunatagebuch</div>
+    <h2 style="margin:0 0 24px">{{ tb.count }} Einträge</h2>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ tb.items }}" as="it" hint-placeholder-count="10">
+        <button onClick="{{ it.onClick }}" style="white-space:normal;display:block;width:100%;padding:9px 12px;border:0;background:{{ it.bg }};font:inherit;color:inherit;text-align:left;cursor:pointer;border-radius:var(--radius-md)" style-hover="background:var(--color-neutral-200)">
+          <span style="display:block;font-weight:600;line-height:1.3">{{ it.when }} · {{ it.sauna }}</span>
+          <span style="display:block;font-size:12px;line-height:1.4;color:{{ it.subColor }}">{{ it.sub }}</span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+  <div style="max-width:760px">
+    <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">{{ tb.kicker }}</div>
+    <h1 style="margin:0 0 6px">{{ tb.title }}</h1>
+    <p style="font-size:18px;margin:0 0 48px">Sauna {{ tb.sauna }}</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:40px;margin-bottom:48px">
+      <div>
+        <h6>Temperatur</h6>
+        <div style="font-size:56px;font-weight:600;line-height:1;letter-spacing:-0.02em;margin:6px 0 12px">{{ tb.temp }} °C</div>
+        <input type="range" min="50" max="110" step="1" value="{{ tb.temp }}" onChange="{{ tb.onTemp }}">
+      </div>
+      <div>
+        <h6>Münzen</h6>
+        <div style="display:flex;align-items:center;gap:10px;margin:10px 0 8px"><button class="btn btn-secondary btn-icon" onClick="{{ tb.cDec }}">−</button><span style="font-size:30px;font-weight:600;min-width:36px;text-align:center">{{ tb.coins }}</span><button class="btn btn-secondary btn-icon" onClick="{{ tb.cInc }}">+</button></div>
+        <div style="font-size:13px">{{ tb.cost }} · {{ tb.mins }}</div>
+      </div>
+      <div>
+        <h6>Saunagänge</h6>
+        <div style="display:flex;align-items:center;gap:10px;margin:10px 0 8px"><button class="btn btn-secondary btn-icon" onClick="{{ tb.gDec }}">−</button><span style="font-size:30px;font-weight:600;min-width:36px;text-align:center">{{ tb.gaenge }}</span><button class="btn btn-secondary btn-icon" onClick="{{ tb.gInc }}">+</button></div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:28px"><label>Aufguss gemacht?</label>
+      <div class="seg">
+        <label class="seg-opt"><input type="radio" name="auf" checked="{{ tb.aufYes }}" onChange="{{ tb.onYes }}">Ja</label>
+        <label class="seg-opt"><input type="radio" name="auf" checked="{{ tb.aufNo }}" onChange="{{ tb.onNo }}">Nein</label>
+      </div>
+    </div>
+
+    <sc-if value="{{ tb.aufYes }}" hint-placeholder-val="{{ true }}">
+      <div style="margin-bottom:40px">
+        <h6 style="margin-bottom:12px">Ätherische Öle</h6>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px">
+          <sc-for list="{{ tb.chips }}" as="c" hint-placeholder-count="9"><button class="btn {{ c.cls }}" onClick="{{ c.toggle }}" style="font-weight:400">{{ c.name }}</button></sc-for>
+        </div>
+        <form onSubmit="{{ tb.addOil }}" style="display:flex;gap:8px;align-items:center;max-width:460px;margin:-8px 0 28px">
+          <input class="input" value="{{ tb.oilNew }}" onChange="{{ tb.onOilNew }}" placeholder="Anderes Öl, z. B. Rosmarin" style="flex:1">
+          <button type="submit" class="btn btn-secondary">Hinzufügen</button>
+          <a href="#" onClick="{{ goOe }}" style="font-size:13px;white-space:nowrap">Meine Öle</a>
+        </form>
+        <sc-if value="{{ tb.hasOils }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;margin-bottom:28px;max-width:460px">
+            <sc-for list="{{ tb.oils }}" as="o" hint-placeholder-count="2">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:8px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+                <span style="font-weight:600">{{ o.name }}</span>
+                <span style="display:flex;align-items:center;gap:8px"><button class="btn btn-secondary btn-icon" onClick="{{ o.dec }}" style="width:30px;height:30px">−</button><span style="min-width:78px;text-align:center">{{ o.label }}</span><button class="btn btn-secondary btn-icon" onClick="{{ o.inc }}" style="width:30px;height:30px">+</button></span>
+              </div>
+            </sc-for>
+            <div style="font-size:13px;padding-top:8px;color:color-mix(in srgb, var(--color-text) 65%, transparent)">{{ tb.dropsTotal }}</div>
+          </div>
+        </sc-if>
+        <div class="field" style="margin-bottom:18px"><label>Dosierung</label>
+          <div class="seg">
+            <sc-for list="{{ tb.doses }}" as="d" hint-placeholder-count="3"><label class="seg-opt"><input type="radio" name="dose" checked="{{ d.on }}" onChange="{{ d.pick }}">{{ d.label }}</label></sc-for>
+          </div>
+        </div>
+        <div class="field"><label>Notiz zur Dosierung</label><textarea class="input" value="{{ tb.oilNote }}" onChange="{{ tb.onOilNote }}" placeholder="z. B. Pfefferminze nächstes Mal einen Tropfen weniger"></textarea></div>
+      </div>
+    </sc-if>
+
+    <div class="field" style="margin-bottom:24px"><label>Notiz zum Saunagang</label><textarea class="input" value="{{ tb.note }}" onChange="{{ tb.onNote }}" placeholder="Wie war es?"></textarea></div>
+    <button class="btn btn-primary" onClick="{{ tb.save }}" style="padding-inline:28px">Eintrag speichern</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- USER · ÖLE -->
+<sc-if value="{{ s.uOe }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="User Öle">
+  <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">Meine Öle</div>
+  <h1 style="margin:0 0 12px">{{ oe.count }} ätherische Öle</h1>
+  <p style="font-size:17px;margin:0 0 56px;max-width:56ch">Diese Liste erscheint im Saunatagebuch zur Auswahl beim Aufguss. Marke und Notiz lassen sich direkt bearbeiten.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:64px 80px;align-items:start">
+    <div>
+      <div style="display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,1fr) minmax(0,1.4fr) auto;gap:16px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 60%, transparent);padding:8px 0;border-bottom:1px solid var(--color-divider)"><span>Öl · Verwendung</span><span>Marke</span><span>Notiz</span><span></span></div>
+      <sc-for list="{{ oe.list }}" as="o" hint-placeholder-count="9">
+        <div style="display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,1fr) minmax(0,1.4fr) auto;gap:16px;align-items:center;padding:8px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+          <span style="display:block"><span style="display:block;font-weight:600;line-height:1.3">{{ o.name }}</span><span style="display:block;font-size:12px;line-height:1.4;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ o.usage }}</span></span>
+          <input class="input" value="{{ o.brand }}" onChange="{{ o.onBrand }}" placeholder="Marke">
+          <input class="input" value="{{ o.note }}" onChange="{{ o.onNote }}" placeholder="Notiz">
+          <button class="btn btn-ghost" onClick="{{ o.del }}" style="font-size:13px">Entfernen</button>
+        </div>
+      </sc-for>
+    </div>
+    <form onSubmit="{{ oe.save }}" style="display:flex;flex-direction:column;gap:16px;max-width:380px">
+      <h3 style="margin:0">Öl hinzufügen</h3>
+      <div class="field"><label>Name</label><input class="input" value="{{ oe.name }}" onChange="{{ oe.onName }}" placeholder="z. B. Rosmarin"></div>
+      <div class="field"><label>Marke (optional)</label><input class="input" value="{{ oe.brand }}" onChange="{{ oe.onBrandN }}"></div>
+      <div class="field"><label>Notiz (optional)</label><textarea class="input" value="{{ oe.note }}" onChange="{{ oe.onNoteN }}" placeholder="Duft, Wirkung, Mischungen …"></textarea></div>
+      <button type="submit" class="btn btn-primary" disabled="{{ oe.dis }}" style="align-self:flex-start">Hinzufügen</button>
+    </form>
+  </div>
+</div>
+</sc-if>
+
+<!-- USER · MÜNZEN -->
+<sc-if value="{{ s.uMz }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="User Münzen">
+  <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 14px">Meine Münzen</div>
+  <h1 style="margin:0 0 48px">{{ my.left }} Münzen übrig.</h1>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:32px 40px;margin-bottom:72px;max-width:900px">
+    <div><div style="font-size:40px;font-weight:600;line-height:1">{{ my.bought }}</div><div style="font-size:13px;margin-top:8px">gekauft</div></div>
+    <div><div style="font-size:40px;font-weight:600;line-height:1">{{ my.used }}</div><div style="font-size:13px;margin-top:8px">verbraucht laut Tagebuch</div></div>
+    <div><div style="font-size:40px;font-weight:600;line-height:1">{{ my.spent }}</div><div style="font-size:13px;margin-top:8px">ausgegeben</div></div>
+    <div><div style="font-size:40px;font-weight:600;line-height:1">{{ my.avg }}</div><div style="font-size:13px;margin-top:8px">pro Münze im Schnitt</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:64px 80px;align-items:start">
+    <div>
+      <h3>Käufe</h3>
+      <div style="display:grid;grid-template-columns:130px 70px 100px 100px minmax(0,1fr);gap:16px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 60%, transparent);padding:8px 0;border-bottom:1px solid var(--color-divider)"><span>Datum</span><span style="text-align:right">Stk.</span><span style="text-align:right">Preis/Stk.</span><span style="text-align:right">Summe</span><span></span></div>
+      <sc-for list="{{ my.buys }}" as="b" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:130px 70px 100px 100px minmax(0,1fr);gap:16px;align-items:center;padding:8px 0;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+          <span>{{ b.date }}</span><span style="text-align:right">{{ b.qty }}</span><span style="text-align:right">{{ b.price }}</span><span style="text-align:right">{{ b.sum }}</span>
+          <span style="text-align:right"><button class="btn btn-ghost" onClick="{{ b.del }}" style="font-size:13px">Löschen</button></span>
+        </div>
+      </sc-for>
+    </div>
+    <div>
+      <h3>Kauf erfassen</h3>
+      <p style="font-size:14px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">Münzen gibt es beim Hauswart, gemeinsam mit dem Schlüssel.</p>
+      <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,0.8fr) minmax(0,1fr);gap:14px;margin:18px 0 18px">
+        <div class="field"><label>Datum</label><input class="input" type="date" value="{{ buy.date }}" onChange="{{ buy.onDate }}"></div>
+        <div class="field"><label>Anzahl</label><input class="input" type="number" min="1" value="{{ buy.qty }}" onChange="{{ buy.onQty }}"></div>
+        <div class="field"><label>Preis/Stk. (€)</label><input class="input" type="number" step="0.5" min="0" value="{{ buy.price }}" onChange="{{ buy.onPrice }}"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px"><button class="btn btn-primary" onClick="{{ buy.save }}">Kauf speichern</button><span style="font-size:14px">{{ buy.sum }}</span></div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- USER · JAHRESBILANZ -->
+<sc-if value="{{ s.uB }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="User Jahresbilanz">
+  <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 56px">Jahresbilanz 2026 · bis {{ bl.until }}</div>
+  <div style="display:flex;flex-wrap:wrap;gap:32px 64px;align-items:flex-end;margin-bottom:72px">
+    <div>
+      <sc-if value="{{ plate }}" hint-placeholder-val="{{ true }}">
+        <div class="cmyk-num" style="font-family:var(--font-heading);font-weight:600;font-size:220px;letter-spacing:-0.04em"><span class="paper">{{ bl.count }}</span><span class="plate plate-c" aria-hidden="true">{{ bl.count }}</span><span class="plate plate-m" aria-hidden="true">{{ bl.count }}</span><span class="plate plate-y" aria-hidden="true">{{ bl.count }}</span></div>
+      </sc-if>
+      <sc-if value="{{ noPlate }}" hint-placeholder-val="{{ false }}"><div style="font-family:var(--font-heading);font-weight:600;font-size:220px;line-height:0.9;letter-spacing:-0.04em">{{ bl.count }}</div></sc-if>
+    </div>
+    <div style="padding-bottom:8px;flex:1 1 360px">
+      <h1 style="font-size:46px;line-height:1.1;margin:0 0 16px;max-width:20ch">Saunagänge, {{ bl.cost }} für Münzen.</h1>
+      <p style="font-size:18px;margin:0;max-width:52ch">{{ bl.summary }}</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:32px 40px;margin-bottom:80px">
+    <div><div style="font-size:36px;font-weight:600;line-height:1">{{ bl.coins }}</div><div style="font-size:13px;margin-top:8px">Münzen verbraucht</div></div>
+    <div><div style="font-size:36px;font-weight:600;line-height:1">{{ bl.hours }}</div><div style="font-size:13px;margin-top:8px">Stunden Heizzeit</div></div>
+    <div><div style="font-size:36px;font-weight:600;line-height:1">{{ bl.avgT }}</div><div style="font-size:13px;margin-top:8px">Ø Temperatur · max. {{ bl.maxT }}</div></div>
+    <div><div style="font-size:36px;font-weight:600;line-height:1">{{ bl.auf }}</div><div style="font-size:13px;margin-top:8px">Aufgüsse</div></div>
+    <div><div style="font-size:36px;font-weight:600;line-height:1">{{ bl.fav }}</div><div style="font-size:13px;margin-top:8px">Lieblingssauna</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:64px 80px;align-items:start">
+    <div>
+      <h3>Nach Monat</h3>
+      <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px;align-items:end;height:200px;margin-top:24px;border-bottom:1px solid var(--color-divider)">
+        <sc-for list="{{ bl.months }}" as="m" hint-placeholder-count="12">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%">
+            <span style="font-size:12px">{{ m.nLabel }}</span>
+            <div style="width:100%;height:{{ m.h }};background:var(--color-accent);border-radius:var(--radius-sm) var(--radius-sm) 0 0"></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px;margin-top:8px">
+        <sc-for list="{{ bl.months }}" as="m" hint-placeholder-count="12"><div style="text-align:center"><div style="font-size:12px;font-weight:600">{{ m.label }}</div><div style="font-size:11px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ m.cost }}</div></div></sc-for>
+      </div>
+    </div>
+    <div>
+      <h3>Öle im Aufguss</h3>
+      <p style="font-size:14px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ bl.doseLine }}</p>
+      <sc-for list="{{ bl.oils }}" as="o" hint-placeholder-count="6">
+        <div style="padding:9px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 10%, transparent)">
+          <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px"><span style="font-weight:600">{{ o.name }}</span><span>{{ o.label }}</span></div>
+          <div style="height:4px;width:{{ o.w }};background:var(--color-accent-2);border-radius:var(--radius-sm)"></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</main>
+</sc-if>
+
+<sc-if value="{{ dlg.open }}" hint-placeholder-val="{{ false }}">
+  <div class="dialog-backdrop" onClick="{{ dlg.close }}" style="z-index:50">
+    <div class="dialog" onClick="{{ dlg.stop }}" style="width:min(500px,100%)">
+      <sc-if value="{{ dlg.isRes }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent)">{{ dlg.r.when }} · Sauna {{ dlg.r.sauna }}</div>
+        <div class="dialog-title">{{ dlg.r.name }}</div>
+        <div style="font-size:14px;margin-top:-8px">{{ dlg.r.loc }}</div>
+        <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:8px 16px;font-size:14px">
+          <span style="color:color-mix(in srgb, var(--color-text) 65%, transparent)">Abholung</span><span>{{ dlg.r.pick }}</span>
+          <span style="color:color-mix(in srgb, var(--color-text) 65%, transparent)">Rückgabe</span><span>{{ dlg.r.ret }}</span>
+          <span style="color:color-mix(in srgb, var(--color-text) 65%, transparent)">Status</span><span><span style="white-space:nowrap" class="tag {{ dlg.r.tagCls }}">{{ dlg.r.tag }}</span></span>
+          <sc-if value="{{ dlg.r.hasNote }}" hint-placeholder-val="{{ false }}"><span style="color:color-mix(in srgb, var(--color-text) 65%, transparent)">Notiz</span><span style="font-style:italic">{{ dlg.r.note }}</span></sc-if>
+          <sc-if value="{{ dlg.r.hasCoins }}" hint-placeholder-val="{{ false }}"><span style="color:color-mix(in srgb, var(--color-text) 65%, transparent)">Münzen</span><span>{{ dlg.r.coinsTxt }}</span></sc-if>
+        </div>
+        <sc-if value="{{ dlg.r.needCoins }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:10px;align-items:flex-end">
+            <div class="field" style="width:160px"><label>Eingesammelte Münzen</label><input class="input" type="number" min="0" value="{{ dlg.r.val }}" onChange="{{ dlg.r.onInput }}"></div>
+            <button class="btn btn-secondary" onClick="{{ dlg.r.saveCoins }}">Erfassen</button>
+          </div>
+        </sc-if>
+        <div class="dialog-actions">
+          <sc-if value="{{ dlg.r.canCancel }}" hint-placeholder-val="{{ false }}"><button class="btn btn-ghost" onClick="{{ dlg.r.cancel }}" style="margin-right:auto">Stornieren</button></sc-if>
+          <button class="btn btn-secondary" onClick="{{ dlg.close }}">Schließen</button>
+          <sc-for list="{{ dlg.r.actions }}" as="a" hint-placeholder-count="1"><button class="btn {{ a.cls }}" onClick="{{ a.fn }}">{{ a.label }}</button></sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ dlg.isNew }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent)">Neue Reservierung</div>
+        <div class="dialog-title">{{ dlg.n.when }} · Sauna {{ dlg.n.sauna }}</div>
+        <div class="field"><label>Für Partei</label>
+          <select class="input" value="{{ dlg.n.pid }}" onChange="{{ dlg.n.onPid }}">
+            <option value="">Partei wählen …</option>
+            <sc-for list="{{ partyOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+          </select>
+        </div>
+        <div style="font-size:14px">Schlüssel abholen: {{ dlg.n.pick }}</div>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary" onClick="{{ dlg.close }}">Abbrechen</button>
+          <button class="btn btn-primary" onClick="{{ dlg.n.save }}" disabled="{{ dlg.n.dis }}">Reservieren</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ dlg.isPartei }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 70%, transparent)">{{ dlg.p.stiege }}</div>
+        <div class="dialog-title">Partei registrieren</div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px">
+          <div class="field"><label>Vorname</label><input class="input" value="{{ dlg.p.vn }}" onChange="{{ dlg.p.onVn }}"></div>
+          <div class="field"><label>Nachname</label><input class="input" value="{{ dlg.p.nn }}" onChange="{{ dlg.p.onNn }}"></div>
+          <div class="field"><label>Wohnung</label>
+            <select class="input" value="{{ dlg.p.top }}" onChange="{{ dlg.p.onTop }}"><sc-for list="{{ dlg.p.tops }}" as="t" hint-placeholder-count="3"><option value="{{ t.v }}">{{ t.l }}</option></sc-for></select>
+          </div>
+          <div class="field"><label>Startpasswort</label><input class="input" value="{{ dlg.p.pw }}" readonly></div>
+        </div>
+        <div style="font-size:14px">Benutzername: <strong>{{ dlg.p.user }}</strong></div>
+        <div style="font-size:13px;color:color-mix(in srgb, var(--color-text) 65%, transparent)">Die Zugangsdaten übergeben Sie der Partei persönlich. Beim ersten Login wird ein neues Passwort gesetzt.</div>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary" onClick="{{ dlg.close }}">Abbrechen</button>
+          <button class="btn btn-primary" onClick="{{ dlg.p.save }}" disabled="{{ dlg.p.dis }}">Zugang anlegen</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ dlg.isConfirm }}" hint-placeholder-val="{{ false }}">
+        <div class="dialog-title">{{ dlg.c.title }}</div>
+        <div class="dialog-body">{{ dlg.c.body }}</div>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary" onClick="{{ dlg.close }}">Abbrechen</button>
+          <button class="btn btn-primary" onClick="{{ dlg.c.ok }}">{{ dlg.c.label }}</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toast.show }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:40px;bottom:32px;z-index:60;max-width:460px;background:var(--color-surface);color:var(--color-text);padding:14px 18px;border-radius:var(--radius-md);box-shadow:var(--shadow-lg);font-size:14px">{{ toast.msg }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startAs&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;login&quot;,&quot;admin&quot;,&quot;user&quot;],&quot;default&quot;:&quot;login&quot;,&quot;tsType&quot;:&quot;'login'|'admin'|'user'&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;plateFigures&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Darstellung&quot;}}">
+const TODAY='2026-10-01';
+const WD=['So','Mo','Di','Mi','Do','Fr','Sa'];
+const WDL=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+const MON=['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const MS=['Jän','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+const OILS=['Eukalyptus','Pfefferminze','Zirbe','Latschenkiefer','Lavendel','Orange','Zitrone','Fichtennadel','Birke'];
+const VN=['Johann','Elisabeth','Franz','Anna','Josef','Theresa','Karl','Katharina','Stefan','Sabine','Thomas','Andrea','Michael','Claudia','Wolfgang','Birgit','Peter','Monika','Markus','Petra','Christian','Eva','Gerhard','Ingrid','Lukas','Lena','David','Sophie','Florian','Helga'];
+const NN=['Gruber','Bauer','Wagner','Pichler','Steiner','Moser','Mayer','Hofer','Leitner','Berger','Fuchs','Eder','Fischer','Schmid','Winkler','Weber','Schwarz','Maier','Schneider','Reiter','Mayr','Wimmer','Egger','Brunner','Lang','Baumgartner','Auer','Binder','Lechner','Haas','Kofler'];
+const NUM=['Kein','Ein','Zwei','Drei','Vier','Fünf','Sechs','Sieben','Acht','Neun','Zehn','Elf','Zwölf'];
+const pd=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const add=(s,n)=>{const d=pd(s);d.setDate(d.getDate()+n);return iso(d)};
+const dow=s=>pd(s).getDay();
+const fmt=s=>{const d=pd(s);return WD[d.getDay()]+' '+d.getDate()+'. '+MS[d.getMonth()]};
+const fmtY=s=>{const d=pd(s);return d.getDate()+'. '+MS[d.getMonth()]+' '+d.getFullYear()};
+const fmtL=s=>{const d=pd(s);return WDL[d.getDay()]+', '+d.getDate()+'. '+MON[d.getMonth()]+' '+d.getFullYear()};
+const eur=n=>(Math.round(n*100)/100).toFixed(2).replace('.',',')+' €';
+const hsh=(a,b)=>{const x=Math.sin(a*12.9898+b*78.233)*43758.5453;return x-Math.floor(x)};
+const endOf=r=>r.weekend?add(r.date,1):r.date;
+const when=r=>{if(!r.weekend)return fmt(r.date);const a=pd(r.date),b=pd(add(r.date,1));return 'Sa '+a.getDate()+'.'+(a.getMonth()!==b.getMonth()?' '+MS[a.getMonth()]:'')+' – So '+b.getDate()+'. '+MS[b.getMonth()]};
+const whenL=r=>{const a=pd(r.date);if(!r.weekend)return WDL[a.getDay()]+', '+a.getDate()+'. '+MON[a.getMonth()];const b=pd(add(r.date,1));return 'Samstag, '+a.getDate()+'.'+(a.getMonth()!==b.getMonth()?' '+MON[a.getMonth()]:'')+' – Sonntag, '+b.getDate()+'. '+MON[b.getMonth()]};
+const pickup=(r,S)=>{if(r.weekend)return{pick:'bis '+fmt(add(r.date,-1))+', '+S.frBis,ret:fmt(add(r.date,1))+' abends, Postkasten'};
+  if(dow(r.date)===5)return{pick:'bis '+fmt(r.date)+', '+S.frBis,ret:fmt(r.date)+' abends, Postkasten'};
+  return{pick:'bis '+fmt(r.date)+', '+S.moDoBis,ret:fmt(r.date)+' abends, Postkasten'}};
+const ST={reserviert:{l:'Schlüssel abzuholen',c:'tag-outline'},ausgegeben:{l:'Schlüssel ausgegeben',c:'tag-accent'},gemeldet:{l:'Eingeworfen gemeldet',c:'tag-accent-2'},zurueck:{l:'Schlüssel zurück',c:'tag-neutral'},abgesagt:{l:'Abgesagt',c:'tag-neutral'}};
+const statusOf=r=>(r.status==='ausgegeben'&&endOf(r)<TODAY)?{l:'Überfällig',c:'tag-accent-2'}:ST[r.status];
+const uname=(v,n)=>(v+'.'+n).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z.]/g,'');
+const kw=s=>{const d=pd(s);d.setDate(d.getDate()+3-((d.getDay()+6)%7));const w1=new Date(d.getFullYear(),0,4);return 1+Math.round(((d-w1)/864e5-3+((w1.getDay()+6)%7))/7)};
+
+function seed(){
+  const W=[12,10,14,8,16,12,10,14,12,8,10,16,12,14,10];
+  const stiegen=W.map((w,i)=>({num:i+1,wohnungen:w,sauna:[2,5,8,11,14].includes(i+1)}));
+  const parties=[];
+  stiegen.forEach(s=>{for(let t=1;t<=s.wohnungen;t++){
+    const n=((s.num*7+t*3)%5===0)?2:((s.num+t)%11===0?0:1);
+    const nn=NN[(s.num*11+t*17)%NN.length];
+    for(let i=0;i<n;i++){const vn=VN[(s.num*13+t*7+i*5)%VN.length];const last=(i===1&&t%2)?NN[(s.num*5+t*3+7)%NN.length]:nn;
+      parties.push({id:'p'+s.num+'-'+t+'-'+i,vn,nn:last,stiege:s.num,top:t});}}});
+  const mi=parties.findIndex(p=>p.stiege===3&&p.top===7);
+  const me={id:'me',vn:'Maria',nn:'Huber',stiege:3,top:7};
+  if(mi>=0)parties[mi]=me;else parties.push(me);
+  const used=new Set();parties.forEach(p=>{let u=uname(p.vn,p.nn),k=2;while(used.has(u)){u=uname(p.vn,p.nn)+k;k++;}used.add(u);p.user=u;});
+  const others=parties.filter(p=>p.id!=='me');
+  const regs=[];for(let i=0;regs.length<28;i++){const id=others[(i*37+11)%others.length].id;if(!regs.includes(id))regs.push(id);}
+  const res=[];let rid=1;const taken=new Set();
+  const R=(pid,sauna,date,weekend,status,coins,note)=>{res.push({id:'r'+(rid++),pid,sauna,date,weekend,status,coins:coins==null?null:coins,note:note||''});taken.add(sauna+'|'+date);};
+  const mine=[['2026-01-10',5,1,4],['2026-01-21',2,0,2],['2026-02-07',5,1,3],['2026-02-18',8,0,2],['2026-02-26',2,0,2],['2026-03-07',5,1,4],['2026-03-19',11,0,2],['2026-04-11',5,1,3],['2026-04-22',2,0,2],['2026-05-13',14,0,1],['2026-06-10',2,0,1],['2026-08-20',8,0,2],['2026-09-09',2,0,2],['2026-09-19',5,1,3]];
+  mine.forEach(([d,s,w,c])=>R('me',s,d,!!w,'zurueck',c));
+  R('me',11,'2026-09-24',false,'abgesagt');
+  R('me',11,'2026-09-30',false,'ausgegeben');
+  R('me',5,'2026-10-03',true,'reserviert',null,'Wir sind zu zweit – Abholung Freitag um 9.');
+  R('me',2,'2026-10-15',false,'reserviert');
+  [[2,'2026-09-28',0,'zurueck',2,0],[2,'2026-09-30',0,'zurueck',null,1],[2,'2026-10-01',0,'ausgegeben',null,2],[2,'2026-10-03',1,'reserviert',null,3],
+   [5,'2026-09-29',0,'zurueck',3,4],[5,'2026-10-01',0,'reserviert',null,5],
+   [8,'2026-09-28',0,'zurueck',1,6],[8,'2026-09-30',0,'gemeldet',null,7],[8,'2026-10-02',0,'reserviert',null,8],
+   [11,'2026-10-01',0,'reserviert',null,9],[11,'2026-10-03',1,'reserviert',null,10],
+   [14,'2026-09-29',0,'zurueck',2,11],[14,'2026-10-02',0,'reserviert',null,12]].forEach(([s,d,w,stt,c,i])=>R(regs[i],s,d,!!w,stt,c));
+  const base=pd('2026-01-01');
+  for(let d='2026-01-05';d<='2026-12-31';d=add(d,1)){
+    if(d>='2026-09-28'&&d<='2026-10-04')continue;const wd=dow(d);if(wd===0)continue;
+    const di=Math.round((pd(d)-base)/864e5);const fut=d>TODAY;
+    [2,5,8,11,14].forEach(s=>{if(taken.has(s+'|'+d))return;if(hsh(di,s)>(fut?0.28-(di-273)*0.002:0.33))return;
+      const wk=wd===6;const pid=regs[Math.floor(hsh(s,di)*regs.length)];
+      R(pid,s,d,wk,fut?'reserviert':'zurueck',fut?null:(wk?2+Math.floor(hsh(di,s+1)*3):1+Math.floor(hsh(di,s+2)*3)));});
+  }
+  const usedBy={};res.forEach(r=>{if(r.coins)usedBy[r.pid]=(usedBy[r.pid]||0)+r.coins;});
+  const sales=[];let sid=1;
+  const myBuys=[['2026-01-08',10],['2026-03-02',10],['2026-06-01',10],['2026-09-01',5]];
+  myBuys.forEach(([d,q])=>sales.push({id:'s'+(sid++),pid:'me',date:d,qty:q,price:5}));
+  Object.keys(usedBy).filter(k=>k!=='me').forEach((pid,i)=>{const n=Math.ceil((usedBy[pid]+Math.floor(hsh(i,3)*9))/10);
+    for(let k=0;k<n;k++)sales.push({id:'s'+(sid++),pid,date:add('2026-01-03',Math.min(268,Math.floor((k/n)*255+hsh(i,k)*12))),qty:10,price:5});});
+  const notes=['Angenehm trocken, danach Kaltdusche.','Ofen braucht gut 40 Minuten zum Aufheizen.','Sehr ruhig im Dachgeschoß.','Mit Andreas – zweiter Gang am längsten.','Bänke frisch geölt, riecht nach Holz.','Draußen Schnee, Abkühlen am offenen Fenster.'];
+  const combos=[[['Eukalyptus',3],['Pfefferminze',2]],[['Zirbe',4]],[['Latschenkiefer',3],['Zitrone',2]],[['Lavendel',3],['Orange',3]],[['Zirbe',3],['Fichtennadel',2]]];
+  const doses=['passend','zu stark','passend','zu schwach'];
+  const oilNotes={'passend':'Dosierung passt so.','zu stark':'Pfefferminze brennt in den Augen – nächstes Mal einen Tropfen weniger.','zu schwach':'Kaum zu riechen, mehr Tropfen nehmen.'};
+  const temps=[85,90,88,92,80,86,90,95,84,82,78,88,90,92];
+  const diary={};
+  res.filter(r=>r.pid==='me'&&r.status==='zurueck').forEach((r,k)=>{const auf=k%3!==2;const dz=doses[k%4];
+    diary[r.id]={coins:r.coins,temp:temps[k%14],gaenge:2+(k%2),aufguss:auf,oils:auf?combos[k%5].map(([name,drops])=>({name,drops})):[],dose:dz,oilNote:auf?oilNotes[dz]:'',note:notes[k%notes.length]};});
+  return {stiegen,parties,res,sales,diary,myCoins:myBuys.map(([d,q],i)=>({id:'m'+i,date:d,qty:q,price:5})),
+    settings:{price:5,minutes:60,total:400,moDoVon:'08:00',moDoBis:'18:00',frVon:'08:00',frBis:'12:00'}};
+}
+
+class Component extends DCLogic {
+  state=Object.assign(seed(),{role:null,screen:null,login:{u:'',p:'',err:''},weekStart:'2026-09-28',selStiege:3,dlg:null,coinDraft:{},newPid:'',newP:{vn:'',nn:'',top:1,pw:''},sale:{pid:'',qty:10,date:TODAY},form:{id:null,sauna:5,date:null,weekend:false,note:''},calMonth:'2026-10',tbSel:null,draft:null,oils:OILS.map((n,i)=>({id:'o'+i,name:n,brand:['Primavera','Taoasis','','Primavera','','Farfalla','','Taoasis',''][i],note:['Klassiker, frei atmen','Sparsam dosieren – brennt schnell','Riecht nach Almhütte','','Beruhigend, eher abends','Mit Zitrone mischen','','',''][i]})),oilNew:'',oilForm:{name:'',brand:'',note:''},buy:{date:TODAY,qty:10,price:5},toast:''});
+  componentDidMount(){const a=this.props.startAs;if(a==='admin'||a==='user')this.login(a);}
+  componentDidUpdate(pp){if(pp.startAs!==this.props.startAs){const a=this.props.startAs;if(a==='admin'||a==='user')this.login(a);else this.setState({role:null,screen:null});}}
+  toast(msg){clearTimeout(this._t);this.setState({toast:msg});this._t=setTimeout(()=>this.setState({toast:''}),4200);}
+  upd(id,f){this.setState(s=>({res:s.res.map(r=>r.id===id?Object.assign({},r,f):r)}));}
+  login(role){this.setState({role,screen:role==='admin'?'a-heute':'u-gaenge',login:{u:'',p:'',err:''},dlg:null});}
+  newRes(){this.setState({screen:'u-res',dlg:null,form:{id:null,sauna:5,date:null,weekend:false,note:''},calMonth:'2026-10'});}
+  editRes(r){this.setState({screen:'u-res',dlg:null,form:{id:r.id,sauna:r.sauna,date:r.date,weekend:r.weekend,note:r.note||''},calMonth:r.date.slice(0,7)});}
+  openTb(id){this.setState({screen:'u-tb',tbSel:id,draft:null});}
+  confirm(title,body,label,fn){this.setState({dlg:{type:'confirm',title,body,label,fn}});}
+  saveCoins(id){const n=parseInt(this.state.coinDraft[id],10);if(isNaN(n)||n<0){this.toast('Bitte die Anzahl der Münzen eingeben.');return;}
+    const r=this.state.res.find(x=>x.id===id);this.upd(id,{coins:n});this.setState(s=>({dlg:s.dlg&&s.dlg.id===id?null:s.dlg}));this.toast(n+' Münzen für Sauna Stiege '+r.sauna+', '+when(r)+' erfasst.');}
+
+  renderVals(){
+    const st=this.state,S=st.settings,set=o=>this.setState(o),me='me';
+    const P={};st.parties.forEach(p=>P[p.id]=p);
+    const pname=id=>P[id]?P[id].vn+' '+P[id].nn:'Ehemalige Partei';
+    const ploc=id=>P[id]?'Stiege '+P[id].stiege+' · Top '+P[id].top:'';
+    const saunas=st.stiegen.filter(s=>s.sauna).map(s=>s.num);
+    const act=st.res.filter(r=>r.status!=='abgesagt');
+    const covers=(r,d)=>r.date===d||(r.weekend&&add(r.date,1)===d);
+    const pv=e=>{if(e&&e.preventDefault)e.preventDefault();};
+    const go=k=>e=>{pv(e);if(k==='u-res')return this.newRes();this.setState({screen:k,dlg:null});};
+    const role=st.role,scr=st.screen;
+    const navDef=role==='admin'?[['a-heute','Heute'],['a-kal','Kalender'],['a-stiegen','Stiegen & Parteien'],['a-muenzen','Münzen']]:[['u-gaenge','Saunagänge'],['u-res','Reservieren'],['u-tb','Tagebuch'],['u-oele','Öle'],['u-muenzen','Münzen'],['u-bilanz','Jahresbilanz']];
+    const navItems=navDef.map(([k,l])=>({label:l,current:scr===k?'page':undefined,onClick:go(k)}));
+    const s={login:!role,app:!!role,aHeute:scr==='a-heute',aKal:scr==='a-kal',aSt:scr==='a-stiegen',aMz:scr==='a-muenzen',uG:scr==='u-gaenge',uR:scr==='u-res',uTb:scr==='u-tb',uMz:scr==='u-muenzen',uOe:scr==='u-oele',uB:scr==='u-bilanz'};
+    const wdT=dow(TODAY);
+    const pickupToday=wdT>=1&&wdT<=4?'Schlüsselausgabe heute '+S.moDoVon+'–'+S.moDoBis:wdT===5?'Schlüsselausgabe heute '+S.frVon+'–'+S.frBis:'Heute keine Schlüsselausgabe';
+    const hours={moDo:'Mo–Do '+S.moDoVon+'–'+S.moDoBis,fr:'Fr '+S.frVon+'–'+S.frBis,frBis:S.frBis,coin:'1 Münze = '+S.minutes+' Minuten · '+eur(S.price)};
+    const dateline={date:fmtL(TODAY),mid:role==='admin'?pickupToday:'Maria Huber · Stiege 3, Top 7',right:saunas.length+' Saunen · Stiege '+saunas.join(', ')};
+    const row=r=>{const ss=statusOf(r),pk=pickup(r,S);return{id:r.id,when:when(r),sauna:'Stiege '+r.sauna,name:pname(r.pid),loc:ploc(r.pid),tag:ss.l,tagCls:ss.c,pick:pk.pick,ret:pk.ret}};
+    const byDate=(a,b)=>a.date<b.date?-1:a.date>b.date?1:a.sauna-b.sauna;
+
+    const lg=st.login;
+    const login={u:lg.u,p:lg.p,err:lg.err,hasErr:!!lg.err,
+      onU:e=>set({login:Object.assign({},lg,{u:e.target.value,err:''})}),onP:e=>set({login:Object.assign({},lg,{p:e.target.value,err:''})}),
+      submit:e=>{pv(e);const u=lg.u.trim().toLowerCase();if(!u||!lg.p){set({login:Object.assign({},lg,{err:'Bitte Benutzername und Passwort eingeben.'})});return;}
+        if(u==='hauswart'||u==='admin')return this.login('admin');if(u==='maria.huber')return this.login('user');
+        set({login:Object.assign({},lg,{err:'Benutzername oder Passwort stimmt nicht.'})});},
+      asAdmin:()=>this.login('admin'),asUser:()=>this.login('user')};
+
+    // Heute
+    const pickups=act.filter(r=>r.status==='reserviert'&&r.date>=TODAY&&r.date<=add(TODAY,3)).sort(byDate).map(r=>Object.assign(row(r),{give:()=>{this.upd(r.id,{status:'ausgegeben'});this.toast('Schlüssel Stiege '+r.sauna+' an '+pname(r.pid)+' ausgegeben.');}}));
+    const mailbox=act.filter(r=>r.status==='gemeldet'||(r.status==='ausgegeben'&&endOf(r)<TODAY)).sort(byDate).map(r=>Object.assign(row(r),{confirm:()=>{this.upd(r.id,{status:'zurueck'});this.toast('Schlüssel Stiege '+r.sauna+' ist zurück. Münzen beim Rundgang zählen.');}}));
+    const coinsP=act.filter(r=>r.status==='zurueck'&&r.coins==null&&r.date<TODAY).sort(byDate).map(r=>Object.assign(row(r),{val:st.coinDraft[r.id]==null?'':st.coinDraft[r.id],onInput:e=>set({coinDraft:Object.assign({},st.coinDraft,{[r.id]:e.target.value})}),save:()=>this.saveCoins(r.id)}));
+    const keys=saunas.map(sn=>{const out=act.find(r=>r.sauna===sn&&(r.status==='ausgegeben'||r.status==='gemeldet'));
+      if(!out)return{sauna:'Stiege '+sn,where:'Beim Hauswart',tag:'am Brett',cls:'tag-neutral'};
+      if(out.status==='gemeldet')return{sauna:'Stiege '+sn,where:'Im Postkasten (gemeldet)',tag:'prüfen',cls:'tag-accent-2'};
+      return{sauna:'Stiege '+sn,where:'Bei '+pname(out.pid)+' seit '+fmt(out.date),tag:endOf(out)<TODAY?'überfällig':'ausgegeben',cls:endOf(out)<TODAY?'tag-accent-2':'tag-accent'};});
+    const p=pickups.length,m=mailbox.length;
+    const headline=(NUM[p]||p)+' '+(p<=1?'Schlüssel wartet':'Schlüssel warten')+' auf Abholung. '+(m===0?'Im Postkasten ist nichts zu prüfen.':'Im Postkasten '+(m===1?'ist einer':'sind '+(NUM[m]||m).toLowerCase())+' zu prüfen.');
+    const heute={dayLabel:pickupToday,headline,pickups,noPickups:!p,mailbox,noMailbox:!m,coins:coinsP,noCoins:!coinsP.length,keys};
+
+    const sold=st.sales.reduce((a,x)=>a+x.qty,0),usedAll=st.res.reduce((a,r)=>a+(r.coins||0),0),circ=sold-usedAll;
+    const coins={lager:S.total-circ,total:S.total,circ,sold,used:usedAll,rev:eur(st.sales.reduce((a,x)=>a+x.qty*x.price,0))};
+
+    // Kalender
+    const ws=st.weekStart,days=[0,1,2,3,4].map(i=>add(ws,i)),sat=add(ws,5);
+    const cell=(sn,d,wk)=>{const r=act.find(x=>x.sauna===sn&&x.date===d);
+      if(r){const b=row(r);return{has:true,free:false,past:false,name:b.name,loc:b.loc,tag:b.tag,tagCls:b.tagCls,onClick:()=>set({dlg:{type:'res',id:r.id}})};}
+      const past=wk?add(d,-1)<TODAY:d<TODAY;
+      return{has:false,free:!past,past,onClick:()=>set({dlg:{type:'new',sauna:sn,date:d,weekend:wk},newPid:''})};};
+    const kal={kw:'KW '+kw(ws),title:fmt(ws)+' – '+fmt(add(ws,6))+' '+pd(add(ws,6)).getFullYear(),
+      prev:()=>set({weekStart:add(ws,-7)}),next:()=>set({weekStart:add(ws,7)}),now:()=>set({weekStart:'2026-09-28'}),
+      head:days.map(d=>({label:fmt(d)+(d===TODAY?' · heute':''),color:d===TODAY?'var(--color-accent-700)':'color-mix(in srgb, var(--color-text) 60%, transparent)',weight:d===TODAY?'600':'400'})).concat([{label:'Wochenende '+when({date:sat,weekend:true}).replace(/^Sa /,''),color:'color-mix(in srgb, var(--color-text) 60%, transparent)',weight:'400'}]),
+      rows:saunas.map(sn=>({sauna:'Stiege '+sn,cells:days.map(d=>cell(sn,d,false)).concat([cell(sn,sat,true)])}))};
+
+    // Stiegen
+    const sel=st.stiegen.find(x=>x.num===st.selStiege)||st.stiegen[0];
+    const updSt=f=>this.setState(s0=>({stiegen:s0.stiegen.map(x=>x.num===sel.num?Object.assign({},x,f):x)}));
+    const openP=t=>set({dlg:{type:'partei'},newP:{vn:'',nn:'',top:t,pw:'sauna-'+(1000+Math.floor(Math.random()*9000))}});
+    const stg={totals:st.stiegen.reduce((a,x)=>a+x.wohnungen,0)+' Wohnungen · '+st.parties.length+' Parteien · '+saunas.length+' Saunen',
+      list:st.stiegen.map(x=>({label:'Stiege '+x.num,sub:x.wohnungen+' Wohnungen · '+st.parties.filter(q=>q.stiege===x.num).length+' Parteien',sauna:x.sauna,bg:x.num===sel.num?'var(--color-surface)':'transparent',onClick:()=>set({selStiege:x.num})})),
+      title:'Stiege '+sel.num,wohnungen:sel.wohnungen,onWohn:e=>{const v=Math.max(1,Math.min(40,parseInt(e.target.value,10)||1));updSt({wohnungen:v});},
+      saunaYes:sel.sauna,saunaNo:!sel.sauna,onYes:()=>updSt({sauna:true}),onNo:()=>updSt({sauna:false}),
+      nParties:st.parties.filter(q=>q.stiege===sel.num).length,addAny:()=>openP(1),
+      wohn:[...Array(sel.wohnungen)].map((_,i)=>{const t=i+1;const ps=st.parties.filter(q=>q.stiege===sel.num&&q.top===t);
+        return{top:'Top '+t,none:!ps.length,add:()=>openP(t),parties:ps.map(q=>({name:q.vn+' '+q.nn,user:q.user,remove:()=>this.confirm('Partei entfernen?',q.vn+' '+q.nn+' (Stiege '+q.stiege+', Top '+q.top+') verliert den Zugang. Vergangene Saunagänge bleiben in der Abrechnung erhalten.','Entfernen',()=>{this.setState(s0=>({parties:s0.parties.filter(z=>z.id!==q.id)}));this.toast(q.vn+' '+q.nn+' entfernt.');})}))};})};
+
+    // Münzen admin
+    const partyOpts=st.parties.slice().sort((a,b)=>a.stiege-b.stiege||a.top-b.top).map(q=>({id:q.id,label:'Stiege '+q.stiege+' / Top '+q.top+' – '+q.nn+' '+q.vn}));
+    const sl=st.sale,sq=parseInt(sl.qty,10)||0;
+    const mz={pid:sl.pid,qty:sl.qty,date:sl.date,sum:sq>0?sq+' × '+eur(S.price)+' = '+eur(sq*S.price):'',
+      onPid:e=>set({sale:Object.assign({},sl,{pid:e.target.value})}),onQty:e=>set({sale:Object.assign({},sl,{qty:e.target.value})}),onDate:e=>set({sale:Object.assign({},sl,{date:e.target.value})}),
+      save:()=>{if(!sl.pid){this.toast('Bitte eine Partei wählen.');return;}if(sq<=0){this.toast('Bitte eine Anzahl eingeben.');return;}if(sq>coins.lager){this.toast('Nur noch '+coins.lager+' Münzen im Lager.');return;}
+        this.setState(s0=>({sales:[{id:'s'+Date.now(),pid:sl.pid,date:sl.date||TODAY,qty:sq,price:S.price}].concat(s0.sales),sale:{pid:'',qty:10,date:TODAY}}));this.toast(sq+' Münzen an '+pname(sl.pid)+' verkauft · '+eur(sq*S.price)+'.');},
+      sales:st.sales.slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0).slice(0,10).map(x=>({date:fmtY(x.date),name:pname(x.pid),loc:ploc(x.pid).replace('Stiege ','St. '),qty:x.qty,sum:eur(x.qty*x.price)})),
+      salesMore:st.sales.length+' Verkäufe in 2026'};
+    const bal={};st.sales.forEach(x=>{bal[x.pid]=bal[x.pid]||{b:0,u:0};bal[x.pid].b+=x.qty;});st.res.forEach(r=>{if(r.coins&&bal[r.pid])bal[r.pid].u+=r.coins;});
+    mz.saldo=Object.keys(bal).map(k=>({k,left:bal[k].b-bal[k].u,b:bal[k].b,u:bal[k].u})).sort((a,b)=>b.left-a.left).slice(0,10).map(x=>({name:pname(x.k),loc:ploc(x.k).replace('Stiege ','St. '),bought:x.b,used:x.u,left:x.left}));
+    const setS=(k,num)=>e=>{const v=num?(parseFloat(e.target.value)||0):e.target.value;this.setState(s0=>({settings:Object.assign({},s0.settings,{[k]:v})}));};
+    const setv={price:S.price,minutes:S.minutes,total:S.total,moDoVon:S.moDoVon,moDoBis:S.moDoBis,frVon:S.frVon,frBis:S.frBis,
+      onPrice:setS('price',1),onMin:setS('minutes',1),onTotal:setS('total',1),onMoDoVon:setS('moDoVon'),onMoDoBis:setS('moDoBis'),onFrVon:setS('frVon'),onFrBis:setS('frBis')};
+
+    // User data
+    const mine=st.res.filter(r=>r.pid===me);
+    const bought=st.myCoins.reduce((a,x)=>a+(x.qty||0),0),spent=st.myCoins.reduce((a,x)=>a+(x.qty||0)*(x.price||0),0);
+    const usedMy=mine.reduce((a,r)=>a+(st.diary[r.id]?st.diary[r.id].coins:0),0);
+    const avgP=bought?spent/bought:S.price;
+    const my={left:bought-usedMy,bought,used:usedMy,spent:eur(spent),avg:eur(avgP),low:bought-usedMy<3,
+      buys:st.myCoins.slice().sort((a,b)=>a.date<b.date?1:-1).map(x=>({date:fmtY(x.date),qty:x.qty,price:eur(x.price),sum:eur(x.qty*x.price),del:()=>this.confirm('Kauf löschen?',x.qty+' Münzen vom '+fmtY(x.date)+' werden aus Ihrer Aufstellung entfernt.','Löschen',()=>this.setState(s0=>({myCoins:s0.myCoins.filter(z=>z.id!==x.id)})))}))};
+    const cancelMine=r=>()=>this.confirm('Saunagang absagen?',when(r)+', Sauna Stiege '+r.sauna+'. Der Termin wird für andere Parteien wieder frei.','Absagen',()=>{this.upd(r.id,{status:'abgesagt'});this.toast('Abgesagt: '+when(r)+'.');});
+    const up=mine.filter(r=>r.status!=='abgesagt'&&endOf(r)>=TODAY).sort(byDate);
+    const open=mine.filter(r=>r.status==='ausgegeben'&&endOf(r)<TODAY);
+    const past=mine.filter(r=>r.status!=='abgesagt'&&endOf(r)<TODAY).sort((a,b)=>byDate(b,a));
+    const nx=up[0];
+    const ug={hasOpen:open.length>0,open:open.map(r=>({when:when(r),sauna:'Stiege '+r.sauna,report:()=>{this.upd(r.id,{status:'gemeldet'});this.toast('Danke! Der Hauswart prüft den Postkasten.');}})),
+      hasNext:!!nx,noNext:!nx,newRes:()=>this.newRes(),
+      next:nx?(()=>{const b=row(nx);return{when:whenL(nx),sauna:'Stiege '+nx.sauna,pick:nx.status==='reserviert'?b.pick+' beim Hauswart':'abgeholt',ret:b.ret,tag:b.tag,tagCls:b.tagCls,canEdit:nx.status==='reserviert',edit:()=>this.editRes(nx),cancel:cancelMine(nx)};})():{},
+      hasMore:up.length>1,more:up.slice(1).map(r=>{const b=row(r);return{when:b.when,sauna:b.sauna,pick:b.pick,edit:()=>this.editRes(r),cancel:cancelMine(r)};}),
+      past:past.map(r=>{const e=st.diary[r.id];return{when:when(r),sauna:'Stiege '+r.sauna,temp:e?e.temp+' °C':'—',auf:e?(e.aufguss?e.oils.map(o=>o.name).join(', ')||'ja':'—'):'—',coins:e?e.coins:'—',cost:e?eur(e.coins*avgP):'—',tbLabel:e?'Tagebuch':'Eintrag schreiben',open:()=>this.openTb(r.id)};}),
+      hasCanc:mine.some(r=>r.status==='abgesagt'),canc:mine.filter(r=>r.status==='abgesagt').map(r=>({when:when(r),sauna:'Stiege '+r.sauna,del:()=>this.confirm('Endgültig löschen?','Die abgesagte Reservierung '+when(r)+' wird aus Ihrer Liste entfernt.','Löschen',()=>this.setState(s0=>({res:s0.res.filter(z=>z.id!==r.id)})))}))};
+
+    // Reservieren
+    const f=st.form;
+    const others=(sn,d)=>act.find(r=>r.sauna===sn&&r.date===d&&r.id!==f.id);
+    const myOn=d=>act.find(r=>r.pid===me&&r.date===d&&r.id!==f.id);
+    const blockOK=(sn,b,wk)=>!(b<TODAY)&&!(wk&&add(b,-1)<TODAY)&&!others(sn,b)&&!myOn(b);
+    const nextFree=sn=>{for(let i=0;i<90;i++){const d=add(TODAY,i),wd=dow(d);if(wd===0)continue;if(blockOK(sn,d,wd===6))return when({date:d,weekend:wd===6});}return '—';};
+    const [cy,cm]=st.calMonth.split('-').map(Number);
+    const off=(dow(st.calMonth+'-01')+6)%7,dim=new Date(cy,cm,0).getDate();
+    const cells=[];for(let i=0;i<off;i++)cells.push({blank:true,day:false});
+    for(let n=1;n<=dim;n++){const d=st.calMonth+'-'+String(n).padStart(2,'0'),wd=dow(d),wk=wd===6||wd===0,b=wk?(wd===6?d:add(d,-1)):d;
+      const tk=others(f.sauna,b),mo=myOn(b),pst=b<TODAY||(wk&&add(b,-1)<TODAY),selD=f.date===b;
+      cells.push({blank:false,day:true,n,cls:selD?'btn-primary':'btn-secondary',dis:!selD&&(pst||!!tk||!!mo),
+        sub:selD?(wk?'Wochenende':'gewählt'):mo?'Ihr Termin':tk?'belegt':pst?'':(d===TODAY?'heute':'frei'),pick:()=>set({form:Object.assign({},f,{date:b,weekend:wk})})});}
+    const mi=cy*12+cm-1;
+    const cal={title:MON[cm-1]+' '+cy,wd:['Mo','Di','Mi','Do','Fr','Sa','So'],cells,prevDis:st.calMonth<='2026-10',nextDis:st.calMonth>='2026-12',
+      prev:()=>{const k=mi-1;set({calMonth:Math.floor(k/12)+'-'+String(k%12+1).padStart(2,'0')});},next:()=>{const k=mi+1;set({calMonth:Math.floor(k/12)+'-'+String(k%12+1).padStart(2,'0')});}};
+    const fake={date:f.date,weekend:f.weekend,sauna:f.sauna};
+    const fr={kicker:f.id?'Reservierung bearbeiten':'Neue Reservierung',title:f.id?'Termin ändern':'Sauna reservieren',
+      saunas:saunas.map(sn=>({label:'Stiege '+sn,sub:'frei ab '+nextFree(sn),on:f.sauna===sn,pick:()=>set({form:Object.assign({},f,{sauna:sn,date:f.date&&blockOK(sn,f.date,f.weekend)?f.date:null})})})),
+      has:!!f.date,none:!f.date,sum:f.date?Object.assign({when:whenL(fake),sauna:'Stiege '+f.sauna},pickup(fake,S)):{},
+      note:f.note,onNote:e=>set({form:Object.assign({},f,{note:e.target.value})}),cta:f.id?'Änderung speichern':'Verbindlich reservieren',back:go('u-gaenge'),
+      submit:()=>{if(!f.date)return;const pk=pickup(fake,S);
+        if(f.id)this.setState(s0=>({res:s0.res.map(r=>r.id===f.id?Object.assign({},r,{sauna:f.sauna,date:f.date,weekend:f.weekend,note:f.note}):r),screen:'u-gaenge'}));
+        else this.setState(s0=>({res:s0.res.concat([{id:'r'+Date.now(),pid:me,sauna:f.sauna,date:f.date,weekend:f.weekend,status:'reserviert',coins:null,note:f.note}]),screen:'u-gaenge'}));
+        this.toast((f.id?'Geändert: ':'Reserviert: ')+when(fake)+', Sauna Stiege '+f.sauna+'. Schlüssel '+pk.pick+' abholen.');}};
+
+    // Tagebuch
+    const tbList=past;
+    const selId=st.tbSel&&tbList.find(r=>r.id===st.tbSel)?st.tbSel:(tbList[0]&&tbList[0].id);
+    const selR=tbList.find(r=>r.id===selId);
+    const mk=id=>{const e=st.diary[id];return e?Object.assign({},e,{oils:e.oils.map(o=>Object.assign({},o)),id}):{id,coins:1,temp:85,gaenge:2,aufguss:false,oils:[],dose:'passend',oilNote:'',note:''};};
+    const D=st.draft&&st.draft.id===selId?st.draft:mk(selId);
+    const setD=x=>this.setState({draft:Object.assign({},D,x)});
+    const tb={count:Object.keys(st.diary).length,
+      items:tbList.map(r=>{const e=st.diary[r.id];return{when:when(r),sauna:'St. '+r.sauna,sub:e?e.temp+' °C · '+(e.aufguss?'Aufguss':'ohne Aufguss')+' · '+e.coins+' Münzen':'Noch kein Eintrag',subColor:e?'color-mix(in srgb, var(--color-text) 62%, transparent)':'var(--color-accent-2-700)',bg:r.id===selId?'var(--color-surface)':'transparent',onClick:()=>this.openTb(r.id)};}),
+      kicker:st.diary[selId]?'Eintrag':'Neuer Eintrag',title:selR?whenL(selR):'',sauna:selR?'Stiege '+selR.sauna:'',
+      temp:D.temp,onTemp:e=>setD({temp:parseInt(e.target.value,10)}),
+      coins:D.coins,cInc:()=>setD({coins:D.coins+1}),cDec:()=>setD({coins:Math.max(0,D.coins-1)}),cost:eur(D.coins*avgP),mins:D.coins*S.minutes+' Min. Heizzeit',
+      gaenge:D.gaenge,gInc:()=>setD({gaenge:D.gaenge+1}),gDec:()=>setD({gaenge:Math.max(1,D.gaenge-1)}),
+      aufYes:D.aufguss,aufNo:!D.aufguss,onYes:()=>setD({aufguss:true}),onNo:()=>setD({aufguss:false}),
+      oilNew:st.oilNew,onOilNew:e=>set({oilNew:e.target.value}),
+      addOil:e=>{pv(e);const n=st.oilNew.trim();if(!n)return;const ex=st.oils.find(o=>o.name.toLowerCase()===n.toLowerCase());
+        this.setState(s0=>({oils:ex?s0.oils:s0.oils.concat([{id:'o'+Date.now(),name:n,brand:'',note:''}]),oilNew:'',draft:Object.assign({},D,{oils:D.oils.some(x=>x.name===(ex?ex.name:n))?D.oils:D.oils.concat([{name:ex?ex.name:n,drops:3}])})}));
+        this.toast(ex?ex.name+' ausgewählt.':n+' zu „Meine Öle“ hinzugefügt.');},
+      chips:st.oils.map(x=>x.name).map(o=>{const on=D.oils.some(x=>x.name===o);return{name:o,cls:on?'btn-primary':'btn-secondary',toggle:()=>setD({oils:on?D.oils.filter(x=>x.name!==o):D.oils.concat([{name:o,drops:3}])})};}),
+      hasOils:D.oils.length>0,oils:D.oils.map((o,i)=>({name:o.name,label:o.drops+(o.drops===1?' Tropfen':' Tropfen'),inc:()=>setD({oils:D.oils.map((x,j)=>j===i?{name:x.name,drops:x.drops+1}:x)}),dec:()=>setD({oils:D.oils.map((x,j)=>j===i?{name:x.name,drops:Math.max(1,x.drops-1)}:x)})})),
+      dropsTotal:'Insgesamt '+D.oils.reduce((a,o)=>a+o.drops,0)+' Tropfen auf einen Kübel Wasser',
+      doses:['zu schwach','passend','zu stark'].map(x=>({label:x,on:D.dose===x,pick:()=>setD({dose:x})})),
+      oilNote:D.oilNote,onOilNote:e=>setD({oilNote:e.target.value}),note:D.note,onNote:e=>setD({note:e.target.value}),
+      save:()=>{if(!selId)return;const e=Object.assign({},D);delete e.id;this.setState(s0=>({diary:Object.assign({},s0.diary,{[selId]:e}),draft:null}));this.toast('Tagebucheintrag für '+(selR?when(selR):'')+' gespeichert.');}};
+
+    // Öle
+    const use={};Object.keys(st.diary).forEach(k=>{const e=st.diary[k];if(e.aufguss)e.oils.forEach(o=>{use[o.name]=use[o.name]||{t:0,d:0};use[o.name].t++;use[o.name].d+=o.drops;});});
+    const of=st.oilForm;
+    const oe={count:st.oils.length,
+      list:st.oils.map(o=>{const u=use[o.name];return{name:o.name,brand:o.brand||'—',note:o.note||'',usage:u?u.t+'× · '+u.d+' Tropfen':'noch nicht verwendet',
+        onBrand:e=>this.setState(s0=>({oils:s0.oils.map(z=>z.id===o.id?Object.assign({},z,{brand:e.target.value}):z)})),
+        onNote:e=>this.setState(s0=>({oils:s0.oils.map(z=>z.id===o.id?Object.assign({},z,{note:e.target.value}):z)})),
+        del:()=>this.confirm('Öl entfernen?',o.name+' verschwindet aus der Auswahl im Tagebuch. Bestehende Einträge bleiben unverändert.','Entfernen',()=>this.setState(s0=>({oils:s0.oils.filter(z=>z.id!==o.id)})))};}),
+      name:of.name,brand:of.brand,note:of.note,dis:!of.name.trim(),
+      onName:e=>set({oilForm:Object.assign({},of,{name:e.target.value})}),onBrandN:e=>set({oilForm:Object.assign({},of,{brand:e.target.value})}),onNoteN:e=>set({oilForm:Object.assign({},of,{note:e.target.value})}),
+      save:e=>{pv(e);const n=of.name.trim();if(!n)return;if(st.oils.some(o=>o.name.toLowerCase()===n.toLowerCase())){this.toast(n+' ist schon in der Liste.');return;}
+        this.setState(s0=>({oils:s0.oils.concat([{id:'o'+Date.now(),name:n,brand:of.brand.trim(),note:of.note.trim()}]),oilForm:{name:'',brand:'',note:''}}));this.toast(n+' hinzugefügt.');}};
+
+    // Münzen user
+    const by=st.buy,bq=parseInt(by.qty,10)||0,bp=parseFloat(by.price)||0;
+    const buy={date:by.date,qty:by.qty,price:by.price,sum:bq>0?bq+' × '+eur(bp)+' = '+eur(bq*bp):'',
+      onDate:e=>set({buy:Object.assign({},by,{date:e.target.value})}),onQty:e=>set({buy:Object.assign({},by,{qty:e.target.value})}),onPrice:e=>set({buy:Object.assign({},by,{price:e.target.value})}),
+      save:()=>{if(bq<=0){this.toast('Bitte eine Anzahl eingeben.');return;}this.setState(s0=>({myCoins:s0.myCoins.concat([{id:'m'+Date.now(),date:by.date||TODAY,qty:bq,price:bp}]),buy:{date:TODAY,qty:10,price:S.price}}));this.toast(bq+' Münzen erfasst.');}};
+
+    // Bilanz
+    const yr=past.filter(r=>r.date.startsWith('2026'));
+    const ents=yr.map(r=>({r,e:st.diary[r.id]})).filter(x=>x.e);
+    const cU=ents.reduce((a,x)=>a+x.e.coins,0);
+    const temps=ents.map(x=>x.e.temp);
+    const aufs=ents.filter(x=>x.e.aufguss);
+    const oilAgg={};aufs.forEach(x=>x.e.oils.forEach(o=>{oilAgg[o.name]=oilAgg[o.name]||{d:0,t:0};oilAgg[o.name].d+=o.drops;oilAgg[o.name].t++;}));
+    const oilArr=Object.keys(oilAgg).map(k=>({name:k,d:oilAgg[k].d,t:oilAgg[k].t})).sort((a,b)=>b.d-a.d);
+    const maxD=oilArr.length?oilArr[0].d:1;
+    const mc=MS.map(()=>({n:0,c:0}));yr.forEach(r=>{const k=pd(r.date).getMonth();mc[k].n++;const e=st.diary[r.id];if(e)mc[k].c+=e.coins*avgP;});
+    const maxN=Math.max(1,...mc.map(x=>x.n));
+    const favC={};yr.forEach(r=>favC[r.sauna]=(favC[r.sauna]||0)+1);const fav=Object.keys(favC).sort((a,b)=>favC[b]-favC[a])[0];
+    const good=aufs.filter(x=>x.e.dose==='passend').length;
+    const bl={until:fmt(TODAY),count:yr.length,cost:eur(cU*avgP),coins:cU,hours:Math.round(cU*S.minutes/60),
+      avgT:temps.length?Math.round(temps.reduce((a,b)=>a+b,0)/temps.length)+' °C':'—',maxT:temps.length?Math.max(...temps)+' °C':'—',
+      auf:aufs.length,fav:fav?'Stiege '+fav:'—',
+      summary:'Im Schnitt '+eur(yr.length?cU*avgP/yr.length:0)+' pro Saunagang. '+yr.filter(r=>r.weekend).length+' davon an Wochenenden, '+(oilArr[0]?oilArr[0].name+' war das meistverwendete Öl.':''),
+      months:mc.map((x,i)=>({label:MS[i],nLabel:x.n?String(x.n):'',h:x.n?Math.round(x.n/maxN*150)+'px':'2px',cost:x.c?eur(x.c).replace(',00',''):'–'})),
+      oils:oilArr.map(o=>({name:o.name,label:o.d+' Tropfen · '+o.t+'×',w:Math.round(o.d/maxD*100)+'%'})),
+      doseLine:aufs.length?'Bei '+good+' von '+aufs.length+' Aufgüssen passte die Dosierung.':'Noch keine Aufgüsse.'};
+
+    // Dialog
+    const dg=st.dlg,close=()=>set({dlg:null});
+    const dlg={open:!!dg,close,stop:e=>e.stopPropagation(),isRes:false,isNew:false,isPartei:false,isConfirm:false,r:{},n:{},p:{},c:{}};
+    if(dg&&dg.type==='res'){const r=st.res.find(x=>x.id===dg.id);if(r){const b=row(r);
+      const doS=(stt,msg)=>()=>{this.upd(r.id,{status:stt});set({dlg:null});this.toast(msg);};const A=[];
+      if(r.status==='reserviert')A.push({label:'Schlüssel ausgegeben',cls:'btn-primary',fn:doS('ausgegeben','Schlüssel ausgegeben.')});
+      if(r.status==='ausgegeben')A.push({label:'Schlüssel ist im Postkasten',cls:'btn-primary',fn:doS('zurueck','Schlüssel ist zurück.')});
+      if(r.status==='gemeldet'){A.push({label:'Nicht im Postkasten',cls:'btn-secondary',fn:doS('ausgegeben','Meldung zurückgesetzt – die Partei sieht wieder „Schlüssel offen“.')});A.push({label:'Bestätigen',cls:'btn-primary',fn:doS('zurueck','Schlüssel ist zurück.')});}
+      dlg.isRes=true;dlg.r=Object.assign(b,{hasNote:!!r.note,note:r.note,hasCoins:r.coins!=null,coinsTxt:r.coins!=null?r.coins+' eingesammelt · '+eur(r.coins*S.price):'',needCoins:r.status==='zurueck'&&r.coins==null,
+        val:st.coinDraft[r.id]==null?'':st.coinDraft[r.id],onInput:e=>set({coinDraft:Object.assign({},st.coinDraft,{[r.id]:e.target.value})}),saveCoins:()=>this.saveCoins(r.id),actions:A,canCancel:r.status==='reserviert',
+        cancel:()=>this.confirm('Reservierung stornieren?',pname(r.pid)+' · '+when(r)+' · Sauna Stiege '+r.sauna+'. Die Partei sieht den Termin als abgesagt.','Stornieren',()=>{this.upd(r.id,{status:'abgesagt'});this.toast('Reservierung storniert.');})});}}
+    if(dg&&dg.type==='new'){const fk={date:dg.date,weekend:dg.weekend,sauna:dg.sauna};dlg.isNew=true;
+      dlg.n={when:when(fk),sauna:'Stiege '+dg.sauna,pick:pickup(fk,S).pick,pid:st.newPid,dis:!st.newPid,onPid:e=>set({newPid:e.target.value}),
+        save:()=>{if(!st.newPid)return;this.setState(s0=>({res:s0.res.concat([{id:'r'+Date.now(),pid:st.newPid,sauna:dg.sauna,date:dg.date,weekend:dg.weekend,status:'reserviert',coins:null,note:''}]),dlg:null}));this.toast('Reserviert für '+pname(st.newPid)+': '+when(fk)+'.');}};}
+    if(dg&&dg.type==='partei'){const np=st.newP,ok=!!(np.vn.trim()&&np.nn.trim());let u=ok?uname(np.vn.trim(),np.nn.trim()):'vorname.nachname';
+      if(ok){let k=2;const base=u;while(st.parties.some(q=>q.user===u)){u=base+k;k++;}}
+      dlg.isPartei=true;dlg.p={stiege:'Stiege '+sel.num,vn:np.vn,nn:np.nn,top:String(np.top),pw:np.pw,user:u,dis:!ok,
+        tops:[...Array(sel.wohnungen)].map((_,i)=>({v:String(i+1),l:'Top '+(i+1)})),
+        onVn:e=>set({newP:Object.assign({},np,{vn:e.target.value})}),onNn:e=>set({newP:Object.assign({},np,{nn:e.target.value})}),onTop:e=>set({newP:Object.assign({},np,{top:parseInt(e.target.value,10)})}),
+        save:()=>{if(!ok)return;this.setState(s0=>({parties:s0.parties.concat([{id:'p'+Date.now(),vn:np.vn.trim(),nn:np.nn.trim(),stiege:sel.num,top:np.top,user:u}]),dlg:null}));this.toast('Zugang angelegt: '+u+' / '+np.pw);}};}
+    if(dg&&dg.type==='confirm'){dlg.isConfirm=true;dlg.c={title:dg.title,body:dg.body,label:dg.label,ok:()=>{set({dlg:null});dg.fn();}};}
+
+    const plate=this.props.plateFigures!==false;
+    return {s,login,hours,dateline,navItems,roleLabel:role==='admin'?'Hauswart':'Partei',logout:()=>this.setState({role:null,screen:null,dlg:null}),
+      heute,coins,kal,stg,partyOpts,mz,set:setv,my,ug,cal,fr,tb,oe,buy,bl,goOe:go('u-oele'),dlg,toast:{show:!!st.toast,msg:st.toast},goMz:go('u-muenzen'),plate,noPlate:!plate};
+  }
+}
+</script>
+</body>
+</html>

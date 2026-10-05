@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+/**
+ * Lässt nur Zugänge mit der angegebenen Rolle durch (admin|user).
+ */
+class EnsureRole
+{
+    public function handle(Request $request, Closure $next, string $role): Response
+    {
+        abort_unless($request->user()?->role->value === $role, 403);
+
+        return $next($request);
+    }
+}

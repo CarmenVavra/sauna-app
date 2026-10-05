@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Blend;
+use App\Models\User;
+
+class BlendPolicy
+{
+    public function update(User $user, Blend $blend): bool
+    {
+        return $blend->user_id === $user->id;
+    }
+
+    public function delete(User $user, Blend $blend): bool
+    {
+        return $blend->user_id === $user->id;
+    }
+}
