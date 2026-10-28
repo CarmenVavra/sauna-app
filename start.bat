@@ -28,7 +28,7 @@ if not exist public\build\manifest.json (
     call npm run build || goto :error
 )
 
-netstat -ano | findstr /r /c:"127.0.0.1:%PORT% .*LISTENING" >nul
+netstat -ano | findstr /R /C:"127\.0\.0\.1:%PORT%  *0\.0\.0\.0:0 " >nul
 if not errorlevel 1 (
     echo Port %PORT% ist bereits belegt - laeuft Saunabuch schon? Sonst zuerst stop.bat ausfuehren.
     start "" http://127.0.0.1:%PORT%
